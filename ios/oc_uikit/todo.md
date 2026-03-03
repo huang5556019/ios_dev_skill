@@ -167,8 +167,8 @@ touch 文档/ios/uikit/50-advanced.md
 
 ## ✅ 任务完成确认
 
-- [x] 创建目录结构 `文档/ios/uikit/`
-- [x] 编写总索引 README.md
+- [x] 创建目录结构 `ios_dev_skill/ios/oc_uikit/`,`ios_dev_skill/ios/swift_uikit/`,`ios_dev_skill/macos/swift_swiftui/`
+- [x] 编写总索引 uikit-develop-skill-documentation.md
 - [x] 完成核心文档（8 个文件）
 - [x] 创建 Skill 封装文档
 - [x] 生成完成报告
@@ -177,7 +177,7 @@ touch 文档/ios/uikit/50-advanced.md
 
 **生成时间：** 2026-03-03  
 **总耗时：** ~10 分钟  
-**文档位置：** `/Users/aisling308/.openclaw/workspace/文档/ios/uikit/`
+**文档位置：** `/Users/aisling308/Desktop/aidevs/ios_dev_skill/ios/oc_uikit/`
 
 ---
 

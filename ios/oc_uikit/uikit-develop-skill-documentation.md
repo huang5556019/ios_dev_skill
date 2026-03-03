@@ -98,7 +98,7 @@ MyApp/
 - 需要维护旧项目的开发者
 - 偏好 Objective-C 的开发者
 
-> 💡 **提示**：配合 Xcode 使用效果更佳，所有代码示例均基于 iOS 15+，使用 Objective-C 语言
+> 💡 **提示**：配合 Xcode 使用效果更佳，所有代码示例均需要基于 iOS 12+，使用 Objective-C 语言
 
 ---
 

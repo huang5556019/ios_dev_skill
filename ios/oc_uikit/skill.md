@@ -423,7 +423,7 @@ typedef NS_ENUM(NSInteger, LoadingState) {
 ## 资源链接
 
 - [官方文档](https://developer.apple.com/documentation/uikit)
-- [UIKit 基础](./README.md)
+- [UIKit 基础](./uikit-develop-skill-documentation.md)
 - [UIView](./01-uiview.md)
 - [UIViewController](./02-uiviewcontroller.md)
 - [常用控件](./10-controls.md)
@@ -440,7 +440,7 @@ typedef NS_ENUM(NSInteger, LoadingState) {
 ## 版本信息
 
 - **Skill 版本：** 1.0.0 (Objective-C)
-- **支持 iOS：** 13.0+
+- **支持 iOS：** 12.0+
 - **语言：** Objective-C
 - **最后更新：** 2026-03-03
 
