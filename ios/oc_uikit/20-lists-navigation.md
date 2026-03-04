@@ -8,224 +8,212 @@
 
 ### 基础用法
 
-```swift
-class MyViewController: UIViewController {
+```objc
+@interface MyViewController : UIViewController <UITableViewDataSource, UITableViewDelegate>
+
+@property (nonatomic, strong) UITableView *tableView;
+@property (nonatomic, strong) NSArray<NSString *> *items;
+
+@end
+
+@implementation MyViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
     
-    let tableView: UITableView = {
-        let tv = UITableView(frame: .zero, style: .plain)
-        tv.translatesAutoresizingMaskIntoConstraints = false
-        return tv
-    }()
+    self.items = @[@"Item 1", @"Item 2", @"Item 3"];
     
-    let items = ["Item 1", "Item 2", "Item 3"]
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+    self.tableView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.tableView.dataSource = self;
+    self.tableView.delegate = self;
+    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"Cell"];
+    [self.view addSubview:self.tableView];
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.addSubview(tableView)
-        
-        NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
-        
-        tableView.dataSource = self
-        tableView.delegate = self
-        tableView.register(UITableViewCell.self, 
-                          forCellReuseIdentifier: "Cell")
-    }
+    [NSLayoutConstraint activateConstraints:@[
+        [self.tableView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
+        [self.tableView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+        [self.tableView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+        [self.tableView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor]
+    ]];
 }
 
-extension MyViewController: UITableViewDataSource, UITableViewDelegate {
-    
-    // 组数
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-    
-    // 行数
-    func tableView(_ tableView: UITableView, 
-                   numberOfRowsInSection section: Int) -> Int {
-        return items.count
-    }
-    
-    // 单元格
-    func tableView(_ tableView: UITableView, 
-                   cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", 
-                                                for: indexPath)
-        cell.textLabel?.text = items[indexPath.row]
-        return cell
-    }
-    
-    // 点击事件
-    func tableView(_ tableView: UITableView, 
-                   didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        print("选中：\(items[indexPath.row])")
-    }
+#pragma mark - UITableViewDataSource
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
 }
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.items.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
+    cell.textLabel.text = self.items[indexPath.row];
+    return cell;
+}
+
+#pragma mark - UITableViewDelegate
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    NSLog(@"选中：%@", self.items[indexPath.row]);
+}
+
+@end
 ```
 
 ### 自定义单元格
 
-```swift
-class CustomCell: UITableViewCell {
-    
-    static let identifier = "CustomCell"
-    
-    let titleLabel = UILabel()
-    let subtitleLabel = UILabel()
-    let iconImageView = UIImageView()
-    
-    override init(style: UITableViewCell.CellStyle, 
-                  reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        setupUI()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    private func setupUI() {
-        contentView.addSubview(iconImageView)
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(subtitleLabel)
-        
-        iconImageView.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            iconImageView.leadingAnchor.constraint(
-                equalTo: contentView.layoutMarginsGuide.leadingAnchor),
-            iconImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            iconImageView.widthAnchor.constraint(equalToConstant: 40),
-            iconImageView.heightAnchor.constraint(equalToConstant: 40),
-            
-            titleLabel.leadingAnchor.constraint(
-                equalTo: iconImageView.trailingAnchor, constant: 12),
-            titleLabel.topAnchor.constraint(
-                equalTo: contentView.layoutMarginsGuide.topAnchor),
-            titleLabel.trailingAnchor.constraint(
-                equalTo: contentView.layoutMarginsGuide.trailingAnchor),
-            
-            subtitleLabel.leadingAnchor.constraint(
-                equalTo: iconImageView.trailingAnchor, constant: 12),
-            subtitleLabel.topAnchor.constraint(
-                equalTo: titleLabel.bottomAnchor, constant: 4),
-            subtitleLabel.trailingAnchor.constraint(
-                equalTo: contentView.layoutMarginsGuide.trailingAnchor),
-            subtitleLabel.bottomAnchor.constraint(
-                equalTo: contentView.layoutMarginsGuide.bottomAnchor)
-        ])
-        
-        iconImageView.image = UIImage(systemName: "star")
-        titleLabel.font = .systemFont(ofSize: 16, weight: .medium)
-        subtitleLabel.font = .systemFont(ofSize: 14)
-        subtitleLabel.textColor = .gray
-    }
-    
-    func configure(title: String, subtitle: String) {
-        titleLabel.text = title
-        subtitleLabel.text = subtitle
-    }
+```objc
+// CustomCell.h
+@interface CustomCell : UITableViewCell
+
+@property (nonatomic, strong) UILabel *titleLabel;
+@property (nonatomic, strong) UILabel *subtitleLabel;
+@property (nonatomic, strong) UIImageView *iconImageView;
+
++ (NSString *)identifier;
+- (void)configureWithTitle:(NSString *)title subtitle:(NSString *)subtitle;
+
+@end
+
+// CustomCell.m
+@implementation CustomCell
+
++ (NSString *)identifier {
+    return @"CustomCell";
 }
 
-// 使用
-tableView.register(CustomCell.self, forCellReuseIdentifier: CustomCell.identifier)
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    if (self) {
+        [self setupUI];
+    }
+    return self;
+}
 
-func tableView(_ tableView: UITableView, 
-               cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    let cell = tableView.dequeueReusableCell(withIdentifier: CustomCell.identifier, 
-                                            for: indexPath) as! CustomCell
-    cell.configure(title: "标题", subtitle: "副标题")
-    return cell
+- (void)setupUI {
+    self.iconImageView = [[UIImageView alloc] init];
+    self.iconImageView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.iconImageView.image = [UIImage systemImageNamed:@"star"];
+    [self.contentView addSubview:self.iconImageView];
+    
+    self.titleLabel = [[UILabel alloc] init];
+    self.titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    self.titleLabel.font = [UIFont systemFontOfSize:16 weight:UIFontWeightMedium];
+    [self.contentView addSubview:self.titleLabel];
+    
+    self.subtitleLabel = [[UILabel alloc] init];
+    self.subtitleLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    self.subtitleLabel.font = [UIFont systemFontOfSize:14];
+    self.subtitleLabel.textColor = [UIColor grayColor];
+    [self.contentView addSubview:self.subtitleLabel];
+    
+    [NSLayoutConstraint activateConstraints:@[
+        [self.iconImageView.leadingAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.leadingAnchor],
+        [self.iconImageView.centerYAnchor constraintEqualToAnchor:self.contentView.centerYAnchor],
+        [self.iconImageView.widthAnchor constraintEqualToConstant:40],
+        [self.iconImageView.heightAnchor constraintEqualToConstant:40],
+        
+        [self.titleLabel.leadingAnchor constraintEqualToAnchor:self.iconImageView.trailingAnchor constant:12],
+        [self.titleLabel.topAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.topAnchor],
+        [self.titleLabel.trailingAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.trailingAnchor],
+        
+        [self.subtitleLabel.leadingAnchor constraintEqualToAnchor:self.iconImageView.trailingAnchor constant:12],
+        [self.subtitleLabel.topAnchor constraintEqualToAnchor:self.titleLabel.bottomAnchor constant:4],
+        [self.subtitleLabel.trailingAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.trailingAnchor],
+        [self.subtitleLabel.bottomAnchor constraintEqualToAnchor:self.contentView.layoutMarginsGuide.bottomAnchor]
+    ]];
+}
+
+- (void)configureWithTitle:(NSString *)title subtitle:(NSString *)subtitle {
+    self.titleLabel.text = title;
+    self.subtitleLabel.text = subtitle;
+}
+
+@end
+
+// 使用
+[self.tableView registerClass:[CustomCell class] forCellReuseIdentifier:[CustomCell identifier]];
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    CustomCell *cell = [tableView dequeueReusableCellWithIdentifier:[CustomCell identifier] forIndexPath:indexPath];
+    [cell configureWithTitle:@"标题" subtitle:@"副标题"];
+    return cell;
 }
 ```
 
 ### 分组与索引
 
-```swift
+```objc
 // 多组数据
-func numberOfSections(in tableView: UITableView) -> Int {
-    return 3
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 3;
 }
 
-func tableView(_ tableView: UITableView, 
-               numberOfRowsInSection section: Int) -> Int {
-    return sectionData[section].count
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.sectionData[section].count;
 }
 
 // 组标题
-func tableView(_ tableView: UITableView, 
-               titleForHeaderInSection section: Int) -> String? {
-    return "分组 \(section + 1)"
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    return [NSString stringWithFormat:@"分组 %ld", (long)(section + 1)];
 }
 
 // 索引标题
-func sectionIndexTitles(for tableView: UITableView) -> [String]? {
-    return ["A", "B", "C", "D"]
+- (NSArray<NSString *> *)sectionIndexTitlesForTableView:(UITableView *)tableView {
+    return @[@"A", @"B", @"C", @"D"];
 }
 
-func tableView(_ tableView: UITableView, 
-               sectionForSectionIndexTitle title: String, 
-               atIndex index: Int) -> Int {
-    return index
+- (NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index {
+    return index;
 }
 ```
 
 ### 编辑模式
 
-```swift
+```objc
 // 开启编辑
-tableView.isEditing = true
+self.tableView.editing = YES;
 
 // 删除
-func tableView(_ tableView: UITableView, 
-               commit editingStyle: UITableViewCell.EditingStyle, 
-               forRowAt indexPath: IndexPath) {
-    if editingStyle == .delete {
-        items.remove(at: indexPath.row)
-        tableView.deleteRows(at: [indexPath], with: .automatic)
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        [self.items removeObjectAtIndex:indexPath.row];
+        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
     }
 }
 
 // 移动
-func tableView(_ tableView: UITableView, 
-               canMoveRowAt indexPath: IndexPath) -> Bool {
-    return true
+- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
+    return YES;
 }
 
-func tableView(_ tableView: UITableView, 
-               moveRowAt sourceIndexPath: IndexPath, 
-               to destinationIndexPath: IndexPath) {
-    let item = items.remove(at: sourceIndexPath.row)
-    items.insert(item, at: destinationIndexPath.row)
+- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath {
+    NSString *item = self.items[sourceIndexPath.row];
+    [self.items removeObjectAtIndex:sourceIndexPath.row];
+    [self.items insertObject:item atIndex:destinationIndexPath.row];
 }
 ```
 
 ### 高度设置
 
-```swift
+```objc
 // 自动高度（推荐）
-tableView.rowHeight = UITableView.automaticDimension
-tableView.estimatedRowHeight = 60
+self.tableView.rowHeight = UITableViewAutomaticDimension;
+self.tableView.estimatedRowHeight = 60;
 
 // 固定高度
-func tableView(_ tableView: UITableView, 
-               heightForRowAt indexPath: IndexPath) -> CGFloat {
-    return 80
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 80;
 }
 
 // 动态高度
-func tableView(_ tableView: UITableView, 
-               heightForRowAt indexPath: IndexPath) -> CGFloat {
-    let text = items[indexPath.row]
-    // 根据内容计算高度
-    return 44 + CGFloat(text.count) * 2
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSString *text = self.items[indexPath.row];
+    return 44 + text.length * 2;
 }
 ```
 
@@ -235,174 +223,170 @@ func tableView(_ tableView: UITableView,
 
 ### 基础用法
 
-```swift
-class MyViewController: UIViewController {
+```objc
+@interface MyViewController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate>
+
+@property (nonatomic, strong) UICollectionView *collectionView;
+@property (nonatomic, strong) NSArray<NSNumber *> *items;
+
+@end
+
+@implementation MyViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
     
-    let collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.itemSize = CGSize(width: 100, height: 100)
-        layout.minimumInteritemSpacing = 10
-        layout.minimumLineSpacing = 10
-        
-        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        cv.translatesAutoresizingMaskIntoConstraints = false
-        cv.backgroundColor = .white
-        return cv
-    }()
+    self.items = @[@1, @2, @3, @4, @5, @6, @7, @8, @9, @10, @11, @12, @13, @14, @15, @16, @17, @18, @19, @20];
     
-    let items = Array(1...20)
+    UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
+    layout.itemSize = CGSizeMake(100, 100);
+    layout.minimumInteritemSpacing = 10;
+    layout.minimumLineSpacing = 10;
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.addSubview(collectionView)
-        
-        NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
-        
-        collectionView.dataSource = self
-        collectionView.delegate = self
-        collectionView.register(
-            UICollectionViewCell.self,
-            forCellWithReuseIdentifier: "Cell"
-        )
-    }
+    self.collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:layout];
+    self.collectionView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.collectionView.backgroundColor = [UIColor whiteColor];
+    self.collectionView.dataSource = self;
+    self.collectionView.delegate = self;
+    [self.collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:@"Cell"];
+    [self.view addSubview:self.collectionView];
+    
+    [NSLayoutConstraint activateConstraints:@[
+        [self.collectionView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
+        [self.collectionView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],
+        [self.collectionView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],
+        [self.collectionView.bottomAnchor constraintEqualToAnchor:self.view.bottomAnchor]
+    ]];
 }
 
-extension MyViewController: UICollectionViewDataSource, 
-                            UICollectionViewDelegate {
-    
-    func collectionView(_ collectionView: UICollectionView, 
-                       numberOfItemsInSection section: Int) -> Int {
-        return items.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, 
-                       cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: "Cell", 
-            for: indexPath
-        )
-        cell.contentView.backgroundColor = .systemBlue
-        cell.layer.cornerRadius = 8
-        return cell
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, 
-                       didSelectItemAt indexPath: IndexPath) {
-        print("选中：\(items[indexPath.item])")
-    }
+#pragma mark - UICollectionViewDataSource
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return self.items.count;
 }
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
+    cell.contentView.backgroundColor = [UIColor systemBlueColor];
+    cell.contentView.layer.cornerRadius = 8;
+    return cell;
+}
+
+#pragma mark - UICollectionViewDelegate
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    NSLog(@"选中：%@", self.items[indexPath.item]);
+}
+
+@end
 ```
 
 ### 自定义单元格
 
-```swift
-class GridCell: UICollectionViewCell {
-    
-    static let identifier = "GridCell"
-    
-    let imageView = UIImageView()
-    let label = UILabel()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupUI()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    private func setupUI() {
-        contentView.addSubview(imageView)
-        contentView.addSubview(label)
-        
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        label.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            imageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
-            imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
-            imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
-            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor),
-            
-            label.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 4),
-            label.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
-            label.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
-            label.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8)
-        ])
-        
-        imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 8
-        label.textAlignment = .center
-        label.font = .systemFont(ofSize: 12)
-    }
-    
-    func configure(image: UIImage?, title: String) {
-        imageView.image = image
-        label.text = title
-    }
+```objc
+// GridCell.h
+@interface GridCell : UICollectionViewCell
+
+@property (nonatomic, strong) UIImageView *imageView;
+@property (nonatomic, strong) UILabel *label;
+
++ (NSString *)identifier;
+- (void)configureWithImage:(UIImage *)image title:(NSString *)title;
+
+@end
+
+// GridCell.m
+@implementation GridCell
+
++ (NSString *)identifier {
+    return @"GridCell";
 }
 
-// 使用
-collectionView.register(GridCell.self, forCellWithReuseIdentifier: GridCell.identifier)
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        [self setupUI];
+    }
+    return self;
+}
 
-func collectionView(_ collectionView: UICollectionView, 
-                   cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-    let cell = collectionView.dequeueReusableCell(
-        withReuseIdentifier: GridCell.identifier, 
-        for: indexPath
-    ) as! GridCell
-    cell.configure(image: UIImage(systemName: "star"), title: "Item \(indexPath.item)")
-    return cell
+- (void)setupUI {
+    self.imageView = [[UIImageView alloc] init];
+    self.imageView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.imageView.contentMode = UIViewContentModeScaleAspectFill;
+    self.imageView.clipsToBounds = YES;
+    self.imageView.layer.cornerRadius = 8;
+    [self.contentView addSubview:self.imageView];
+    
+    self.label = [[UILabel alloc] init];
+    self.label.translatesAutoresizingMaskIntoConstraints = NO;
+    self.label.textAlignment = NSTextAlignmentCenter;
+    self.label.font = [UIFont systemFontOfSize:12];
+    [self.contentView addSubview:self.label];
+    
+    [NSLayoutConstraint activateConstraints:@[
+        [self.imageView.topAnchor constraintEqualToAnchor:self.contentView.topAnchor constant:8],
+        [self.imageView.leadingAnchor constraintEqualToAnchor:self.contentView.leadingAnchor constant:8],
+        [self.imageView.trailingAnchor constraintEqualToAnchor:self.contentView.trailingAnchor constant:-8],
+        [self.imageView.heightAnchor constraintEqualToAnchor:self.imageView.widthAnchor],
+        
+        [self.label.topAnchor constraintEqualToAnchor:self.imageView.bottomAnchor constant:4],
+        [self.label.leadingAnchor constraintEqualToAnchor:self.contentView.leadingAnchor constant:8],
+        [self.label.trailingAnchor constraintEqualToAnchor:self.contentView.trailingAnchor constant:-8],
+        [self.label.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor constant:-8]
+    ]];
+}
+
+- (void)configureWithImage:(UIImage *)image title:(NSString *)title {
+    self.imageView.image = image;
+    self.label.text = title;
+}
+
+@end
+
+// 使用
+[self.collectionView registerClass:[GridCell class] forCellWithReuseIdentifier:[GridCell identifier]];
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    GridCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:[GridCell identifier] forIndexPath:indexPath];
+    [cell configureWithImage:[UIImage systemImageNamed:@"star"] title:[NSString stringWithFormat:@"Item %ld", (long)indexPath.item]];
+    return cell;
 }
 ```
 
 ### 布局配置
 
-```swift
+```objc
 // Flow Layout
-let layout = UICollectionViewFlowLayout()
-layout.scrollDirection = .vertical // 或 .horizontal
-layout.itemSize = CGSize(width: 100, height: 100)
-layout.minimumInteritemSpacing = 10
-layout.minimumLineSpacing = 10
-layout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
+layout.scrollDirection = UICollectionViewScrollDirectionVertical; // 或 UICollectionViewScrollDirectionHorizontal
+layout.itemSize = CGSizeMake(100, 100);
+layout.minimumInteritemSpacing = 10;
+layout.minimumLineSpacing = 10;
+layout.sectionInset = UIEdgeInsetsMake(10, 10, 10, 10);
 
 // 动态调整大小
-func collectionView(_ collectionView: UICollectionView, 
-                   layout collectionViewLayout: UICollectionViewLayout,
-                   sizeForItemAt indexPath: IndexPath) -> CGSize {
-    return CGSize(width: 100, height: 100)
+- (CGSize)collectionView:(UICollectionView *)collectionView 
+                    layout:(UICollectionViewLayout *)collectionViewLayout
+    sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    return CGSizeMake(100, 100);
 }
 
 // Compositional Layout (iOS 13+)
-func createCompositionalLayout() -> UICollectionViewLayout {
-    let itemSize = NSCollectionLayoutSize(
-        widthDimension: .fractionalWidth(0.5),
-        heightDimension: .fractionalHeight(1.0)
-    )
-    let item = NSCollectionLayoutItem(layoutSize: itemSize)
+- (UICollectionViewLayout *)createCompositionalLayout {
+    NSCollectionLayoutSize *itemSize = [NSCollectionLayoutSize sizeWithWidthDimension:[NSCollectionLayoutDimension fractionalWidthDimension:0.5]
+                                                                        heightDimension:[NSCollectionLayoutDimension fractionalHeightDimension:1.0]];
+    NSCollectionLayoutItem *item = [NSCollectionLayoutItem itemWithLayoutSize:itemSize];
     
-    let groupSize = NSCollectionLayoutSize(
-        widthDimension: .fractionalWidth(1.0),
-        heightDimension: .absolute(100)
-    )
-    let group = NSCollectionLayoutGroup.horizontal(
-        layoutSize: groupSize,
-        subitems: [item]
-    )
+    NSCollectionLayoutSize *groupSize = [NSCollectionLayoutSize sizeWithWidthDimension:[NSCollectionLayoutDimension fractionalWidthDimension:1.0]
+                                                                        heightDimension:[NSCollectionLayoutDimension absoluteDimension:100]];
+    NSCollectionLayoutGroup *group = [NSCollectionLayoutGroup horizontalGroupWithLayoutSize:groupSize subitems:@[item]];
     
-    let section = NSCollectionLayoutSection(group: group)
-    section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
+    NSCollectionLayoutSection *section = [NSCollectionLayoutSection sectionWithGroup:group];
+    section.contentInsets = NSDirectionalEdgeInsetsMake(10, 10, 10, 10);
     
-    let layout = UICollectionViewCompositionalLayout(section: section)
-    return layout
+    UICollectionViewCompositionalLayout *layout = [[UICollectionViewCompositionalLayout alloc] initWithSection:section];
+    return layout;
 }
 ```
 
@@ -412,89 +396,83 @@ func createCompositionalLayout() -> UICollectionViewLayout {
 
 ### 基础用法
 
-```swift
+```objc
 // 创建导航控制器
-let rootVC = RootViewController()
-let navigationController = UINavigationController(rootViewController: rootVC)
+RootViewController *rootVC = [[RootViewController alloc] init];
+UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:rootVC];
 
 // 设置到 window
-window?.rootViewController = navigationController
+self.window.rootViewController = navigationController;
 
 // 推入新控制器
-let detailVC = DetailViewController()
-navigationController.pushViewController(detailVC, animated: true)
+DetailViewController *detailVC = [[DetailViewController alloc] init];
+[navigationController pushViewController:detailVC animated:YES];
 
 // 弹出
-navigationController.popViewController(animated: true)
+[navigationController popViewControllerAnimated:YES];
 
 // 弹到根
-navigationController.popToRootViewController(animated: true)
+[navigationController popToRootViewControllerAnimated:YES];
 
 // 弹到指定
-navigationController.popToViewController(targetVC, animated: true)
+[navigationController popToViewController:targetVC animated:YES];
 ```
 
 ### 导航栏配置
 
-```swift
+```objc
 // 隐藏导航栏
-navigationController?.setNavigationBarHidden(true, animated: true)
+[navigationController setNavigationBarHidden:YES animated:YES];
 
 // 设置标题
-navigationItem.title = "标题"
+self.navigationItem.title = @"标题";
 
 // 返回按钮
-navigationItem.backBarButtonItem = UIBarButtonItem(
-    title: "返回",
-    style: .plain,
-    target: nil,
-    action: nil
-)
+self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"返回"
+                                                                           style:UIBarButtonItemStylePlain
+                                                                          target:nil
+                                                                          action:nil];
 
 // 隐藏返回按钮
-navigationItem.hidesBackButton = true
+self.navigationItem.hidesBackButton = YES;
 
 // 左侧按钮
-navigationItem.leftBarButtonItem = UIBarButtonItem(
-    barButtonSystemItem: .cancel,
-    target: self,
-    action: #selector(cancelTapped)
-)
+self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                                                                                       target:self
+                                                                                       action:@selector(cancelTapped)];
 
 // 右侧按钮
-navigationItem.rightBarButtonItem = UIBarButtonItem(
-    barButtonSystemItem: .save,
-    target: self,
-    action: #selector(saveTapped)
-)
+self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSave
+                                                                                        target:self
+                                                                                        action:@selector(saveTapped)];
 
 // 多个按钮
-navigationItem.rightBarButtonItems = [
-    UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(editTapped)),
-    UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
-]
+self.navigationItem.rightBarButtonItems = @[
+    [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemEdit target:self action:@selector(editTapped)],
+    [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addTapped)]
+];
 ```
 
 ### 自定义导航栏
 
-```swift
+```objc
 // 背景色
-navigationController?.navigationBar.barTintColor = .systemBlue
+navigationController.navigationBar.barTintColor = [UIColor systemBlueColor];
 
 // 标题颜色
-navigationController?.navigationBar.titleTextAttributes = [
-    .foregroundColor: UIColor.white
-]
+navigationController.navigationBar.titleTextAttributes = @{
+    NSForegroundColorAttributeName: [UIColor whiteColor]
+};
 
 // 大标题
-navigationController?.navigationBar.prefersLargeTitles = true
-navigationItem.largeTitleDisplayMode = .automatic // 或 .always, .never
+navigationController.navigationBar.prefersLargeTitles = YES;
+self.navigationItem.largeTitleDisplayMode = UINavigationItemLargeTitleDisplayModeAutomatic; // 或 .always, .never
 
 // 毛玻璃效果
-navigationController?.navigationBar.isTranslucent = true
+navigationController.navigationBar.translucent = YES;
 
 // 底部线条
-navigationController?.navigationBar.shadowImage = UIImage()
+navigationController.navigationBar.shadowImage = [UIImage image];
 ```
 
 ---
@@ -503,78 +481,74 @@ navigationController?.navigationBar.shadowImage = UIImage()
 
 ### 基础用法
 
-```swift
+```objc
 // 创建子控制器
-let vc1 = FirstViewController()
-vc1.tabBarItem = UITabBarItem(
-    title: "首页",
-    image: UIImage(systemName: "house"),
-    selectedImage: UIImage(systemName: "house.fill")
-)
+FirstViewController *vc1 = [[FirstViewController alloc] init];
+vc1.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"首页"
+                                                image:[UIImage systemImageNamed:@"house"]
+                                          selectedImage:[UIImage systemImageNamed:@"house.fill"]];
 
-let vc2 = SecondViewController()
-vc2.tabBarItem = UITabBarItem(
-    title: "搜索",
-    image: UIImage(systemName: "magnifyingglass"),
-    selectedImage: UIImage(systemName: "magnifyingglass.fill")
-)
+SecondViewController *vc2 = [[SecondViewController alloc] init];
+vc2.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"搜索"
+                                                image:[UIImage systemImageNamed:@"magnifyingglass"]
+                                          selectedImage:[UIImage systemImageNamed:@"magnifyingglass.fill"]];
 
-let vc3 = ThirdViewController()
-vc3.tabBarItem = UITabBarItem(
-    title: "我的",
-    image: UIImage(systemName: "person"),
-    selectedImage: UIImage(systemName: "person.fill")
-)
+ThirdViewController *vc3 = [[ThirdViewController alloc] init];
+vc3.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"我的"
+                                                image:[UIImage systemImageNamed:@"person"]
+                                          selectedImage:[UIImage systemImageNamed:@"person.fill"]];
 
 // 创建标签栏控制器
-let tabBarController = UITabBarController()
-tabBarController.viewControllers = [vc1, vc2, vc3]
+UITabBarController *tabBarController = [[UITabBarController alloc] init];
+tabBarController.viewControllers = @[vc1, vc2, vc3];
 
 // 设置到 window
-window?.rootViewController = tabBarController
+self.window.rootViewController = tabBarController;
 ```
 
 ### 自定义样式
 
-```swift
+```objc
 // 背景色
-tabBarController.tabBar.barTintColor = .white
+tabBarController.tabBar.barTintColor = [UIColor whiteColor];
 
 // 选中颜色
-tabBarController.tabBar.tintColor = .systemBlue
+tabBarController.tabBar.tintColor = [UIColor systemBlueColor];
 
 // 背景图片
-tabBarController.tabBar.backgroundImage = UIImage()
-tabBarController.tabBar.shadowImage = UIImage()
+tabBarController.tabBar.backgroundImage = [UIImage image];
+tabBarController.tabBar.shadowImage = [UIImage image];
 
 // 隐藏顶部线条
-tabBarController.tabBar.shadowImage = UIImage()
+tabBarController.tabBar.shadowImage = [UIImage image];
 
 // 添加高斯模糊
-let blurEffect = UIBlurEffect(style: .light)
-let blurView = UIVisualEffectView(effect: blurEffect)
-blurView.frame = tabBarController.tabBar.bounds
-blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-tabBarController.tabBar.insertSubview(blurView, at: 0)
+UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
+UIVisualEffectView *blurView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
+blurView.frame = tabBarController.tabBar.bounds;
+blurView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+[tabBarController.tabBar insertSubview:blurView atIndex:0];
 ```
 
 ### 代理方法
 
-```swift
-extension MyAppDelegate: UITabBarControllerDelegate {
-    
-    func tabBarController(_ tabBarController: UITabBarController, 
-                         shouldSelect viewController: UIViewController) -> Bool {
-        // 是否可以切换
-        return true
-    }
-    
-    func tabBarController(_ tabBarController: UITabBarController, 
-                         didSelect viewController: UIViewController) {
-        // 已经切换
-        print("切换到：\(viewController)")
-    }
+```objc
+@interface AppDelegate () <UITabBarControllerDelegate>
+@end
+
+@implementation AppDelegate
+
+- (BOOL)tabBarController:(UITabBarController *)tabBarController shouldSelectViewController:(UIViewController *)viewController {
+    // 是否可以切换
+    return YES;
 }
+
+- (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController {
+    // 已经切换
+    NSLog(@"切换到：%@", viewController);
+}
+
+@end
 ```
 
 ---

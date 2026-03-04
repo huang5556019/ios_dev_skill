@@ -31,19 +31,14 @@ github "SnapKit/Masonry"
 ```
 
 #### SPM
-```swift
-dependencies: [
-    .package(url: "https://github.com/SnapKit/Masonry.git", from: "2.0.0")
-]
+```objc
+// Masonry 主要用于 Objective-C 项目
+// Swift 项目推荐使用 SnapKit
 ```
 
 ### 导入
-```objective-c
+```objc
 #import "Masonry.h"
-```
-
-```swift
-import Masonry
 ```
 
 ---
@@ -52,8 +47,7 @@ import Masonry
 
 ### 1. 基础约束
 
-```objective-c
-// Objective-C
+```objc
 UIView *redView = [[UIView alloc] init];
 redView.backgroundColor = [UIColor redColor];
 [self.view addSubview:redView];
@@ -64,20 +58,6 @@ redView.backgroundColor = [UIColor redColor];
     make.right.equalTo(self.view).offset(-20);
     make.height.equalTo(@100);
 }];
-```
-
-```swift
-// Swift
-let redView = UIView()
-redView.backgroundColor = .red
-view.addSubview(redView)
-
-redView.mas_makeConstraints { make in
-    make?.top.equalTo(view).offset(20)
-    make?.left.equalTo(view).offset(20)
-    make?.right.equalTo(view).offset(-20)
-    make?.height.equalTo(100)
-}
 ```
 
 ### 2. 简化写法
@@ -379,88 +359,130 @@ textField.borderStyle = UITextBorderStyleRoundedRect;
 
 ---
 
-## 🎯 Swift 扩展
+## Objective-C 扩展
 
 ### 常用扩展
 
-```swift
-import Masonry
+```objc
+// UIView+CornerRadius.h
+@interface UIView (CornerRadius)
 
-// 快速设置圆角
-extension UIView {
-    func setupCornerRadius(_ radius: CGFloat) {
-        self.layer.cornerRadius = radius
-        self.layer.masksToBounds = true
-    }
+- (void)setupCornerRadius:(CGFloat)radius;
+
+@end
+
+// UIView+CornerRadius.m
+@implementation UIView (CornerRadius)
+
+- (void)setupCornerRadius:(CGFloat)radius {
+    self.layer.cornerRadius = radius;
+    self.layer.masksToBounds = YES;
 }
 
-// 快速设置阴影
-extension UIView {
-    func setupShadow(color: UIColor = .black, 
-                     offset: CGSize = CGSize(width: 0, height: 2),
-                     opacity: Float = 0.2,
-                     radius: CGFloat = 4) {
-        self.layer.shadowColor = color.cgColor
-        self.layer.shadowOffset = offset
-        self.layer.shadowOpacity = opacity
-        self.layer.shadowRadius = radius
-    }
+@end
+
+// UIView+Shadow.h
+@interface UIView (Shadow)
+
+- (void)setupShadow;
+- (void)setupShadowWithColor:(UIColor *)color 
+                       offset:(CGSize)offset 
+                      opacity:(float)opacity 
+                       radius:(CGFloat)radius;
+
+@end
+
+// UIView+Shadow.m
+@implementation UIView (Shadow)
+
+- (void)setupShadow {
+    [self setupShadowWithColor:[UIColor blackColor] 
+                        offset:CGSizeMake(0, 2) 
+                       opacity:0.2 
+                        radius:4];
 }
+
+- (void)setupShadowWithColor:(UIColor *)color 
+                       offset:(CGSize)offset 
+                      opacity:(float)opacity 
+                       radius:(CGFloat)radius {
+    self.layer.shadowColor = color.CGColor;
+    self.layer.shadowOffset = offset;
+    self.layer.shadowOpacity = opacity;
+    self.layer.shadowRadius = radius;
+}
+
+@end
 
 // 使用
-let view = UIView()
-view.backgroundColor = .white
-view.setupCornerRadius(8)
-view.setupShadow()
+UIView *view = [[UIView alloc] init];
+view.backgroundColor = [UIColor whiteColor];
+[view setupCornerRadius:8];
+[view setupShadow];
 
-view.mas_makeConstraints { make in
-    make?.edges.equalToSuperview().insets(UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20))
-}
+[view mas_makeConstraints:^(MASConstraintMaker *make) {
+    make.edges.equalTo(self.view).insets(UIEdgeInsetsMake(20, 20, 20, 20));
+}];
 ```
 
 ### 链式布局扩展
 
-```swift
-extension UIView {
-    @discardableResult
-    func setupConstraints(in parent: UIView,
-                          top: CGFloat? = nil,
-                          left: CGFloat? = nil,
-                          right: CGFloat? = nil,
-                          bottom: CGFloat? = nil,
-                          width: CGFloat? = nil,
-                          height: CGFloat? = nil) -> Self {
-        
-        self.mas_makeConstraints { make in
-            if let top = top {
-                make?.top.equalTo(parent).offset(top)
-            }
-            if let left = left {
-                make?.left.equalTo(parent).offset(left)
-            }
-            if let right = right {
-                make?.right.equalTo(parent).offset(-right)
-            }
-            if let bottom = bottom {
-                make?.bottom.equalTo(parent).offset(-bottom)
-            }
-            if let width = width {
-                make?.width.equalTo(width)
-            }
-            if let height = height {
-                make?.height.equalTo(height)
-            }
+```objc
+// UIView+MasonryHelper.h
+@interface UIView (MasonryHelper)
+
+- (instancetype)setupConstraintsInParent:(UIView *)parent
+                                     top:(NSNumber *)top
+                                   left:(NSNumber *)left
+                                  right:(NSNumber *)right
+                                 bottom:(NSNumber *)bottom
+                                  width:(NSNumber *)width
+                                 height:(NSNumber *)height;
+
+@end
+
+// UIView+MasonryHelper.m
+@implementation UIView (MasonryHelper)
+
+- (instancetype)setupConstraintsInParent:(UIView *)parent
+                                     top:(NSNumber *)top
+                                   left:(NSNumber *)left
+                                  right:(NSNumber *)right
+                                 bottom:(NSNumber *)bottom
+                                  width:(NSNumber *)width
+                                 height:(NSNumber *)height {
+    
+    [self mas_makeConstraints:^(MASConstraintMaker *make) {
+        if (top) {
+            make.top.equalTo(parent).offset(top.floatValue);
         }
-        
-        return self
-    }
+        if (left) {
+            make.left.equalTo(parent).offset(left.floatValue);
+        }
+        if (right) {
+            make.right.equalTo(parent).offset(-right.floatValue);
+        }
+        if (bottom) {
+            make.bottom.equalTo(parent).offset(-bottom.floatValue);
+        }
+        if (width) {
+            make.width.equalTo(width);
+        }
+        if (height) {
+            make.height.equalTo(height);
+        }
+    }];
+    
+    return self;
 }
 
+@end
+
 // 使用
-let redView = UIView()
-redView.backgroundColor = .red
-view.addSubview(redView)
-redView.setupConstraints(in: view, top: 50, left: 20, right: 20, height: 100)
+UIView *redView = [[UIView alloc] init];
+redView.backgroundColor = [UIColor redColor];
+[self.view addSubview:redView];
+[redView setupConstraintsInParent:self.view top:@50 left:@20 right:@20 height:@100];
 ```
 
 ---

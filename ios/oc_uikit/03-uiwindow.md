@@ -389,60 +389,100 @@ if (vc) {
 
 ### 3. 全局提示
 
-```swift
-class ToastManager {
-    static let shared = ToastManager()
-    private var toastWindow: UIWindow?
-    
-    func showToast(message: String, duration: TimeInterval = 2.0) {
-        guard let windowScene = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene }).first else { return }
-        
-        toastWindow = UIWindow(windowScene: windowScene)
-        toastWindow?.windowLevel = .alert - 1
-        toastWindow?.backgroundColor = .clear
-        
-        let toastVC = ToastViewController(message: message)
-        toastWindow?.rootViewController = toastVC
-        toastWindow?.makeKeyAndVisible()
-        
-        // 自动消失
-        DispatchQueue.main.asyncAfter(deadline: .now() + duration) { [weak self] in
-            self?.hideToast()
-        }
-    }
-    
-    private func hideToast() {
-        UIView.animate(withDuration: 0.3, animations: {
-            self.toastWindow?.alpha = 0
-        }) { _ in
-            self.toastWindow?.isHidden = true
-            self.toastWindow = nil
-        }
-    }
+```objc
+@interface ToastManager : NSObject
+
+@property (nonatomic, strong) UIWindow *toastWindow;
++ (instancetype)shared;
+- (void)showToast:(NSString *)message duration:(NSTimeInterval)duration;
+- (void)hideToast;
+
+@end
+
+@implementation ToastManager
+
++ (instancetype)shared {
+    static ToastManager *instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc] init];
+    });
+    return instance;
 }
+
+- (void)showToast:(NSString *)message duration:(NSTimeInterval)duration {
+    NSArray *scenes = [UIApplication sharedApplication].connectedScenes;
+    UIWindowScene *windowScene = nil;
+    for (UIScene *scene in scenes) {
+        if ([scene isKindOfClass:[UIWindowScene class]]) {
+            windowScene = (UIWindowScene *)scene;
+            break;
+        }
+    }
+    if (!windowScene) return;
+    
+    self.toastWindow = [[UIWindow alloc] initWithWindowScene:windowScene];
+    self.toastWindow.windowLevel = UIWindowLevelAlert - 1;
+    self.toastWindow.backgroundColor = [UIColor clearColor];
+    
+    ToastViewController *toastVC = [[ToastViewController alloc] initWithMessage:message];
+    self.toastWindow.rootViewController = toastVC;
+    [self.toastWindow makeKeyAndVisible];
+    
+    // 自动消失
+    __weak typeof(self) weakSelf = self;
+    dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(duration * NSEC_PER_SEC));
+    dispatch_after(time, dispatch_get_main_queue(), ^{
+        [weakSelf hideToast];
+    });
+}
+
+- (void)hideToast {
+    [UIView animateWithDuration:0.3 animations:^{
+        self.toastWindow.alpha = 0;
+    } completion:^(BOOL finished) {
+        self.toastWindow.hidden = YES;
+        self.toastWindow = nil;
+    }];
+}
+
+@end
 ```
 
 ### 4. 截屏检测
 
-```swift
-class ScreenshotDetector {
-    static let shared = ScreenshotDetector()
-    
-    func startMonitoring() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handleScreenshot),
-            name: UIApplication.userDidTakeScreenshotNotification,
-            object: nil
-        )
-    }
-    
-    @objc private func handleScreenshot() {
-        print("用户截屏了！")
-        // 可以显示提示或记录日志
-    }
+```objc
+@interface ScreenshotDetector : NSObject
+
++ (instancetype)shared;
+- (void)startMonitoring;
+
+@end
+
+@implementation ScreenshotDetector
+
++ (instancetype)shared {
+    static ScreenshotDetector *instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc] init];
+    });
+    return instance;
 }
+
+- (void)startMonitoring {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleScreenshot)
+                                                 name:UIApplicationUserDidTakeScreenshotNotification
+                                               object:nil];
+}
+
+- (void)handleScreenshot {
+    NSLog(@"用户截屏了！");
+    // 可以显示提示或记录日志
+}
+
+@end
 ```
 
 ---
@@ -451,29 +491,31 @@ class ScreenshotDetector {
 
 ### 打印窗口层级
 
-```swift
-func printWindowHierarchy() {
-    let windows = UIApplication.shared.windows
-    print("=== 窗口层级 ===")
-    for (index, window) in windows.enumerated() {
-        print("窗口 \(index):")
-        print("  - 层级：\(window.windowLevel)")
-        print("  - 大小：\(window.bounds.size)")
-        print("  - 是否 Key: \(window.isKeyWindow)")
-        print("  - 根控制器：\(type(of: window.rootViewController))")
-        print("  - 子视图数量：\(window.subviews.count)")
+```objc
+- (void)printWindowHierarchy {
+    NSArray *windows = [UIApplication sharedApplication].windows;
+    NSLog(@"=== 窗口层级 ===");
+    for (NSUInteger i = 0; i < windows.count; i++) {
+        UIWindow *window = windows[i];
+        NSLog(@"窗口 %lu:", (unsigned long)i);
+        NSLog(@"  - 层级：%ld", (long)window.windowLevel);
+        NSLog(@"  - 大小：%@", NSStringFromCGRect(window.bounds));
+        NSLog(@"  - 是否 Key: %@", window.isKeyWindow ? @"YES" : @"NO");
+        NSLog(@"  - 根控制器：%@", NSStringFromClass([window.rootViewController class]));
+        NSLog(@"  - 子视图数量：%lu", (unsigned long)window.subviews.count);
     }
 }
 ```
 
 ### 可视化窗口边框
 
-```swift
-func debugWindowBorders() {
-    UIApplication.shared.windows.forEach { window in
-        window.subviews.forEach { subview in
-            subview.layer.borderColor = UIColor.red.cgColor
-            subview.layer.borderWidth = 1
+```objc
+- (void)debugWindowBorders {
+    NSArray *windows = [UIApplication sharedApplication].windows;
+    for (UIWindow *window in windows) {
+        for (UIView *subview in window.subviews) {
+            subview.layer.borderColor = [UIColor redColor].CGColor;
+            subview.layer.borderWidth = 1;
         }
     }
 }
@@ -485,28 +527,34 @@ func debugWindowBorders() {
 
 ### 内存管理
 
-```swift
+```objc
 // ❌ 避免循环引用
-class BadViewController: UIViewController {
-    var window: UIWindow?  // 强引用可能导致泄漏
-}
+@interface BadViewController : UIViewController
+@property (nonatomic, strong) UIWindow *window;  // 强引用可能导致泄漏
+@end
 
 // ✅ 使用 weak
-class GoodViewController: UIViewController {
-    weak var window: UIWindow?
-}
+@interface GoodViewController : UIViewController
+@property (nonatomic, weak) UIWindow *window;
+@end
 ```
 
 ### 多场景支持
 
-```swift
+```objc
 // iOS 13+ 支持多场景，不要假设只有一个窗口
 @available(iOS 13.0, *)
-func getKeyWindow() -> UIWindow? {
-    return UIApplication.shared.connectedScenes
-        .compactMap { $0 as? UIWindowScene }
-        .first { $0.activationState == .foregroundActive }
-        .flatMap { $0.keyWindow }
+- (UIWindow *)getKeyWindow {
+    NSArray *scenes = [UIApplication sharedApplication].connectedScenes;
+    for (UIScene *scene in scenes) {
+        if ([scene isKindOfClass:[UIWindowScene class]]) {
+            UIWindowScene *windowScene = (UIWindowScene *)scene;
+            if (windowScene.activationState == UISceneActivationStateForegroundActive) {
+                return windowScene.keyWindow;
+            }
+        }
+    }
+    return nil;
 }
 ```
 

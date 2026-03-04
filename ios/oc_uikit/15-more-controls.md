@@ -8,28 +8,30 @@
 
 ### 基础用法
 
-```swift
-let switchControl = UISwitch()
-switchControl.isOn = true
-switchControl.onTintColor = .systemGreen
-switchControl.addTarget(self, action: #selector(switchChanged(_:)), for: .valueChanged)
+```objc
+// 创建开关
+UISwitch *switchControl = [[UISwitch alloc] init];
+switchControl.on = YES;
+switchControl.onTintColor = [UIColor systemGreenColor];
+[switchControl addTarget:self action:@selector(switchChanged:) forControlEvents:UIControlEventValueChanged];
 
-@objc func switchChanged(_ sender: UISwitch) {
-    print("开关状态：\(sender.isOn ? "开" : "关")")
+// 处理变化
+- (void)switchChanged:(UISwitch *)sender {
+    NSLog(@"开关状态：%@", sender.on ? @"开" : @"关");
 }
 ```
 
 ### 自定义样式
 
-```swift
+```objc
 // 关闭时背景色
-switchControl.onTintColor = .systemGreen      // 开启时
-switchControl.tintColor = .gray               // 关闭时
-switchControl.thumbTintColor = .white         // 滑块颜色
+switchControl.onTintColor = [UIColor systemGreenColor];    // 开启时
+switchControl.tintColor = [UIColor grayColor];             // 关闭时
+switchControl.thumbTintColor = [UIColor whiteColor];       // 滑块颜色
 
 // iOS 13+ 使用背景色
-if #available(iOS 13.0, *) {
-    switchControl.backgroundColor = .clear
+if (@available(iOS 13.0, *)) {
+    switchControl.backgroundColor = [UIColor clearColor];
 }
 ```
 
@@ -39,44 +41,50 @@ if #available(iOS 13.0, *) {
 
 ### 基础用法
 
-```swift
-let slider = UISlider()
-slider.minimumValue = 0
-slider.maximumValue = 100
-slider.value = 50
-slider.isContinuous = true  // 拖动时持续触发
-slider.addTarget(self, action: #selector(sliderChanged(_:)), for: .valueChanged)
+```objc
+// 创建滑块
+UISlider *slider = [[UISlider alloc] init];
+slider.minimumValue = 0;
+slider.maximumValue = 100;
+slider.value = 50;
+slider.continuous = YES;  // 拖动时持续触发
+[slider addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
 
-@objc func sliderChanged(_ sender: UISlider) {
-    print("当前值：\(sender.value)")
+// 处理变化
+- (void)sliderChanged:(UISlider *)sender {
+    NSLog(@"当前值：%f", sender.value);
 }
 ```
 
 ### 自定义外观
 
-```swift
+```objc
 // 轨道颜色
-slider.minimumTrackTintColor = .systemBlue    // 左侧轨道
-slider.maximumTrackTintColor = .gray          // 右侧轨道
+slider.minimumTrackTintColor = [UIColor systemBlueColor];    // 左侧轨道
+slider.maximumTrackTintColor = [UIColor grayColor];          // 右侧轨道
 
 // 滑块图片
-slider.setThumbImage(UIImage(systemName: "circle.fill"), for: .normal)
-slider.setThumbImage(UIImage(systemName: "circle.fill"), for: .highlighted)
+[slider setThumbImage:[UIImage systemImageNamed:@"circle.fill"] forState:UIControlStateNormal];
+[slider setThumbImage:[UIImage systemImageNamed:@"circle.fill"] forState:UIControlStateHighlighted];
 
 // 轨道图片
-slider.setMinimumTrackImage(UIImage(), for: .normal)
-slider.setMaximumTrackImage(UIImage(), for: .normal)
+[slider setMinimumTrackImage:[UIImage image] forState:UIControlStateNormal];
+[slider setMaximumTrackImage:[UIImage image] forState:UIControlStateNormal];
 ```
 
 ### 步进值
 
-```swift
-let stepValue: Float = 5.0
+```objc
+@property (nonatomic, assign) float stepValue;
 
-@objc func sliderChanged(_ sender: UISlider) {
-    let roundedValue = round(sender.value / stepValue) * stepValue
-    sender.setValue(roundedValue, animated: true)
-    print("步进值：\(roundedValue)")
+- (void)viewDidLoad {
+    self.stepValue = 5.0;
+}
+
+- (void)sliderChanged:(UISlider *)sender {
+    float roundedValue = roundf(sender.value / self.stepValue) * self.stepValue;
+    [sender setValue:roundedValue animated:YES];
+    NSLog(@"步进值：%f", roundedValue);
 }
 ```
 
@@ -86,33 +94,35 @@ let stepValue: Float = 5.0
 
 ### 基础用法
 
-```swift
-let stepper = UIStepper()
-stepper.minimumValue = 0
-stepper.maximumValue = 100
-stepper.stepValue = 1
-stepper.value = 50
-stepper.wraps = false  // 是否循环
-stepper.addTarget(self, action: #selector(stepperChanged(_:)), for: .valueChanged)
+```objc
+// 创建步进器
+UIStepper *stepper = [[UIStepper alloc] init];
+stepper.minimumValue = 0;
+stepper.maximumValue = 100;
+stepper.stepValue = 1;
+stepper.value = 50;
+stepper.wraps = NO;  // 是否循环
+[stepper addTarget:self action:@selector(stepperChanged:) forControlEvents:UIControlEventValueChanged];
 
-@objc func stepperChanged(_ sender: UIStepper) {
-    print("步进值：\(sender.value)")
+// 处理变化
+- (void)stepperChanged:(UIStepper *)sender {
+    NSLog(@"步进值：%f", sender.value);
 }
 ```
 
 ### 自定义样式
 
-```swift
+```objc
 // 背景色
-stepper.backgroundColor = .systemBlue
+stepper.backgroundColor = [UIColor systemBlueColor];
 
-// 按钮颜色
-stepper.setDecrementImage(UIImage(systemName: "minus"), for: .normal)
-stepper.setIncrementImage(UIImage(systemName: "plus"), for: .normal)
+// 按钮图片
+[stepper setDecrementImage:[UIImage systemImageNamed:@"minus"] forState:UIControlStateNormal];
+[stepper setIncrementImage:[UIImage systemImageNamed:@"plus"] forState:UIControlStateNormal];
 
 // 禁用状态
-stepper.setDecrementImage(UIImage(systemName: "minus"), for: .disabled)
-stepper.setIncrementImage(UIImage(systemName: "plus"), for: .disabled)
+[stepper setDecrementImage:[UIImage systemImageNamed:@"minus"] forState:UIControlStateDisabled];
+[stepper setIncrementImage:[UIImage systemImageNamed:@"plus"] forState:UIControlStateDisabled];
 ```
 
 ---
@@ -121,38 +131,38 @@ stepper.setIncrementImage(UIImage(systemName: "plus"), for: .disabled)
 
 ### 基础用法
 
-```swift
+```objc
 // 默认样式
-let progressView = UIProgressView(progressViewStyle: .default)
-progressView.progress = 0.5
-progressView.trackTintColor = .gray
-progressView.progressTintColor = .systemBlue
+UIProgressView *progressView = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
+progressView.progress = 0.5;
+progressView.trackTintColor = [UIColor grayColor];
+progressView.progressTintColor = [UIColor systemBlueColor];
 ```
 
 ### 条形样式
 
-```swift
+```objc
 // 条形进度条
-let barProgress = UIProgressView(progressViewStyle: .bar)
-barProgress.progress = 0.75
-barProgress.progressImage = UIImage(named: "progress_fill")
-barProgress.trackImage = UIImage(named: "progress_track")
+UIProgressView *barProgress = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleBar];
+barProgress.progress = 0.75;
+barProgress.progressImage = [UIImage imageNamed:@"progress_fill"];
+barProgress.trackImage = [UIImage imageNamed:@"progress_track"];
 ```
 
 ### 动画更新
 
-```swift
-func updateProgress(to value: Float) {
-    UIView.animate(withDuration: 0.3) {
-        progressView.setProgress(value, animated: true)
-    }
+```objc
+- (void)updateProgress:(float)value {
+    [UIView animateWithDuration:0.3 animations:^{
+        [self.progressView setProgress:value animated:YES];
+    }];
 }
 
 // 带回调
-progressView.setProgress(0.8, animated: true)
-DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-    print("进度更新完成")
-}
+[self.progressView setProgress:0.8 animated:YES];
+dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    NSLog(@"进度更新完成");
+});
 ```
 
 ---
@@ -161,59 +171,67 @@ DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
 
 ### 基础用法
 
-```swift
-let activityIndicator = UIActivityIndicatorView(style: .large)
-activityIndicator.startAnimating()
-activityIndicator.hidesWhenStopped = true
-view.addSubview(activityIndicator)
+```objc
+// 创建指示器
+UIActivityIndicatorView *activityIndicator = [[UIActivityIndicatorView alloc] initWithStyle:UIActivityIndicatorViewStyleLarge];
+[activityIndicator startAnimating];
+activityIndicator.hidesWhenStopped = YES;
+[self.view addSubview:activityIndicator];
 
 // 停止
-activityIndicator.stopAnimating()
+[activityIndicator stopAnimating];
 ```
 
 ### 样式类型
 
-```swift
+```objc
 // 大尺寸
-let largeIndicator = UIActivityIndicatorView(style: .large)
+UIActivityIndicatorView *largeIndicator = [[UIActivityIndicatorView alloc] initWithStyle:UIActivityIndicatorViewStyleLarge];
 
 // 中等尺寸
-let mediumIndicator = UIActivityIndicatorView(style: .medium)
+UIActivityIndicatorView *mediumIndicator = [[UIActivityIndicatorView alloc] initWithStyle:UIActivityIndicatorViewStyleMedium];
 
 // 自定义颜色
-activityIndicator.color = .systemBlue
+activityIndicator.color = [UIColor systemBlueColor];
 ```
 
 ### 在网络请求中使用
 
-```swift
-class NetworkViewController: UIViewController {
-    
-    private let activityIndicator = UIActivityIndicatorView(style: .large)
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupActivityIndicator()
-    }
-    
-    private func setupActivityIndicator() {
-        activityIndicator.center = view.center
-        activityIndicator.hidesWhenStopped = true
-        activityIndicator.style = .large
-        view.addSubview(activityIndicator)
-    }
-    
-    func fetchData() {
-        activityIndicator.startAnimating()
-        
-        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
-            DispatchQueue.main.async {
-                self?.activityIndicator.stopAnimating()
-                // 处理数据
-            }
-        }.resume()
-    }
+```objc
+@interface NetworkViewController : UIViewController
+
+@property (nonatomic, strong) UIActivityIndicatorView *activityIndicator;
+
+@end
+
+@implementation NetworkViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setupActivityIndicator];
 }
+
+- (void)setupActivityIndicator {
+    self.activityIndicator = [[UIActivityIndicatorView alloc] initWithStyle:UIActivityIndicatorViewStyleLarge];
+    self.activityIndicator.center = self.view.center;
+    self.activityIndicator.hidesWhenStopped = YES;
+    [self.view addSubview:self.activityIndicator];
+}
+
+- (void)fetchData {
+    [self.activityIndicator startAnimating];
+    
+    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithURL:url
+                                                             completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.activityIndicator stopAnimating];
+            // 处理数据
+        });
+    }];
+    [task resume];
+}
+
+@end
 ```
 
 ---
@@ -222,49 +240,47 @@ class NetworkViewController: UIViewController {
 
 ### 基础用法
 
-```swift
-let segmentControl = UISegmentedControl(items: ["选项 1", "选项 2", "选项 3"])
-segmentControl.selectedSegmentIndex = 0
-segmentControl.addTarget(self, action: #selector(segmentChanged(_:)), for: .valueChanged)
+```objc
+// 创建分段控制器
+UISegmentedControl *segmentControl = [[UISegmentedControl alloc] initWithItems:@[@"选项 1", @"选项 2", @"选项 3"]];
+segmentControl.selectedSegmentIndex = 0;
+[segmentControl addTarget:self action:@selector(segmentChanged:) forControlEvents:UIControlEventValueChanged];
 
-@objc func segmentChanged(_ sender: UISegmentedControl) {
-    print("选中索引：\(sender.selectedSegmentIndex)")
-    print("选中标题：\(sender.titleForSegment(at: sender.selectedSegmentIndex) ?? "")")
+// 处理变化
+- (void)segmentChanged:(UISegmentedControl *)sender {
+    NSLog(@"选中索引：%ld", (long)sender.selectedSegmentIndex);
+    NSLog(@"选中标题：%@", [sender titleForSegmentAtIndex:sender.selectedSegmentIndex] ?: @"");
 }
 ```
 
 ### 添加/移除分段
 
-```swift
+```objc
 // 插入分段
-segmentControl.insertSegment(withTitle: "新选项", at: 1, animated: true)
+[segmentControl insertSegmentWithTitle:@"新选项" atIndex:1 animated:YES];
 
 // 移除分段
-segmentControl.removeSegment(at: 1, animated: true)
+[segmentControl removeSegmentAtIndex:1 animated:YES];
 
 // 移除所有
-segmentControl.removeAllSegments()
+[segmentControl removeAllSegments];
 ```
 
 ### 自定义样式
 
-```swift
+```objc
 // 选中颜色
-segmentControl.selectedSegmentTintColor = .systemBlue
+segmentControl.selectedSegmentTintColor = [UIColor systemBlueColor];
 
 // 标题颜色
-segmentControl.setTitleTextAttributes([.foregroundColor: UIColor.white], 
-                                      for: .selected)
-segmentControl.setTitleTextAttributes([.foregroundColor: UIColor.gray], 
-                                      for: .normal)
+[segmentControl setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor whiteColor]} forState:UIControlStateSelected];
+[segmentControl setTitleTextAttributes:@{NSForegroundColorAttributeName: [UIColor grayColor]} forState:UIControlStateNormal];
 
 // 图片分段
-segmentControl.insertSegment(with: UIImage(systemName: "house"), 
-                            at: 0, 
-                            animated: true)
+[segmentControl insertSegmentWithImage:[UIImage systemImageNamed:@"house"] atIndex:0 animated:YES];
 
 // 禁用分段
-segmentControl.setEnabled(false, forSegmentAt: 2)
+[segmentControl setEnabled:NO forSegmentAtIndex:2];
 ```
 
 ---
@@ -273,68 +289,72 @@ segmentControl.setEnabled(false, forSegmentAt: 2)
 
 ### 基础用法
 
-```swift
-let datePicker = UIDatePicker()
-datePicker.datePickerMode = .dateAndTime
-datePicker.preferredDatePickerStyle = .wheels  // 或 .inline, .compact
-datePicker.addTarget(self, action: #selector(dateChanged(_:)), for: .valueChanged)
+```objc
+// 创建日期选择器
+UIDatePicker *datePicker = [[UIDatePicker alloc] init];
+datePicker.datePickerMode = UIDatePickerModeDateAndTime;
+if (@available(iOS 14.0, *)) {
+    datePicker.preferredDatePickerStyle = UIDatePickerStyleWheels;  // 或 .inline, .compact
+}
+[datePicker addTarget:self action:@selector(dateChanged:) forControlEvents:UIControlEventValueChanged];
 
-@objc func dateChanged(_ sender: UIDatePicker) {
-    let formatter = DateFormatter()
-    formatter.dateFormat = "yyyy-MM-dd HH:mm"
-    print("选中日期：\(formatter.string(from: sender.date))")
+// 处理变化
+- (void)dateChanged:(UIDatePicker *)sender {
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    formatter.dateFormat = @"yyyy-MM-dd HH:mm";
+    NSLog(@"选中日期：%@", [formatter stringFromDate:sender.date]);
 }
 ```
 
 ### 日期模式
 
-```swift
+```objc
 // 日期和时间
-datePicker.datePickerMode = .dateAndTime
+datePicker.datePickerMode = UIDatePickerModeDateAndTime;
 
 // 仅日期
-datePicker.datePickerMode = .date
+datePicker.datePickerMode = UIDatePickerModeDate;
 
 // 仅时间
-datePicker.datePickerMode = .time
+datePicker.datePickerMode = UIDatePickerModeTime;
 
 // 倒计时
-datePicker.datePickerMode = .countDownTimer
+datePicker.datePickerMode = UIDatePickerModeCountDownTimer;
 ```
 
 ### 设置范围
 
-```swift
+```objc
 // 最小日期
-let minDate = Calendar.current.date(byAdding: .day, value: -30, to: Date())!
-datePicker.minimumDate = minDate
+NSDate *minDate = [[NSDate date] dateByAddingTimeInterval:-30 * 24 * 60 * 60];
+datePicker.minimumDate = minDate;
 
 // 最大日期
-let maxDate = Calendar.current.date(byAdding: .day, value: 30, to: Date())!
-datePicker.maximumDate = maxDate
+NSDate *maxDate = [[NSDate date] dateByAddingTimeInterval:30 * 24 * 60 * 60];
+datePicker.maximumDate = maxDate;
 
 // 选中日期
-datePicker.date = Date()
+datePicker.date = [NSDate date];
 
 // 倒计时间隔
-datePicker.countDownDuration = 3600  // 1 小时
+datePicker.countDownDuration = 3600;  // 1 小时
 ```
 
 ### 在 Popover 中显示（iPad）
 
-```swift
+```objc
 @available(iOS 14.0, *)
-func showDatePicker() {
-    let datePicker = UIDatePicker()
-    datePicker.preferredDatePickerStyle = .inline
+- (void)showDatePicker {
+    UIDatePicker *datePicker = [[UIDatePicker alloc] init];
+    datePicker.preferredDatePickerStyle = UIDatePickerStyleInline;
     
-    let popover = UIPopoverPresentationController(contentViewController: self)
-    popover.sourceView = showDatePickerButton
-    popover.sourceRect = showDatePickerButton.bounds
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"选择日期" message:nil preferredStyle:UIAlertControllerStyleAlert];
+    UIPopoverPresentationController *popover = alert.popoverPresentationController;
+    popover.sourceView = self.showDatePickerButton;
+    popover.sourceRect = self.showDatePickerButton.bounds;
     
-    let alert = UIAlertController(title: "选择日期", message: nil, preferredStyle: .alert)
-    alert.popoverPresentationController = popover
-    present(alert, animated: true)
+    [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil]];
+    [self presentViewController:alert animated:YES completion:nil];
 }
 ```
 
@@ -344,102 +364,107 @@ func showDatePicker() {
 
 ### 基础用法
 
-```swift
-class MyViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDelegate {
+```objc
+@interface MyViewController : UIViewController <UIPickerViewDataSource, UIPickerViewDelegate>
+
+@property (nonatomic, strong) UIPickerView *pickerView;
+@property (nonatomic, strong) NSArray<NSString *> *fruits;
+
+@end
+
+@implementation MyViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
     
-    let pickerView = UIPickerView()
-    let fruits = ["苹果", "香蕉", "橙子", "葡萄", "西瓜"]
+    self.fruits = @[@"苹果", @"香蕉", @"橙子", @"葡萄", @"西瓜"];
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        pickerView.dataSource = self
-        pickerView.delegate = self
-        view.addSubview(pickerView)
-    }
-    
-    // 数据源方法
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, 
-                   numberOfRowsInComponent component: Int) -> Int {
-        return fruits.count
-    }
-    
-    // 代理方法
-    func pickerView(_ pickerView: UIPickerView, 
-                   titleForRow row: Int, 
-                   forComponent component: Int) -> String? {
-        return fruits[row]
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, 
-                   didSelectRow row: Int, 
-                   inComponent component: Int) {
-        print("选中：\(fruits[row])")
-    }
+    self.pickerView = [[UIPickerView alloc] init];
+    self.pickerView.dataSource = self;
+    self.pickerView.delegate = self;
+    [self.view addSubview:self.pickerView];
 }
+
+// 数据源方法
+- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView {
+    return 1;
+}
+
+- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
+    return self.fruits.count;
+}
+
+// 代理方法
+- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
+    return self.fruits[row];
+}
+
+- (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
+    NSLog(@"选中：%@", self.fruits[row]);
+}
+
+@end
 ```
 
 ### 多列选择器
 
-```swift
-let provinces = ["广东", "浙江", "江苏"]
-let cities = [["广州", "深圳", "珠海"], ["杭州", "宁波", "温州"], ["南京", "苏州", "无锡"]]
+```objc
+@property (nonatomic, strong) NSArray<NSString *> *provinces;
+@property (nonatomic, strong) NSArray<NSArray<NSString *> *> *cities;
 
-func numberOfComponents(in pickerView: UIPickerView) -> Int {
-    return 2  // 省和市两列
+- (void)viewDidLoad {
+    self.provinces = @[@"广东", @"浙江", @"江苏"];
+    self.cities = @[
+        @[@"广州", @"深圳", @"珠海"],
+        @[@"杭州", @"宁波", @"温州"],
+        @[@"南京", @"苏州", @"无锡"]
+    ];
 }
 
-func pickerView(_ pickerView: UIPickerView, 
-               numberOfRowsInComponent component: Int) -> Int {
-    if component == 0 {
-        return provinces.count
+- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView {
+    return 2;  // 省和市两列
+}
+
+- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
+    if (component == 0) {
+        return self.provinces.count;
     } else {
-        let provinceIndex = pickerView.selectedRow(inComponent: 0)
-        return cities[provinceIndex].count
+        NSInteger provinceIndex = [pickerView selectedRowInComponent:0];
+        return self.cities[provinceIndex].count;
     }
 }
 
-func pickerView(_ pickerView: UIPickerView, 
-               titleForRow row: Int, 
-               forComponent component: Int) -> String? {
-    if component == 0 {
-        return provinces[row]
+- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
+    if (component == 0) {
+        return self.provinces[row];
     } else {
-        let provinceIndex = pickerView.selectedRow(inComponent: 0)
-        return cities[provinceIndex][row]
+        NSInteger provinceIndex = [pickerView selectedRowInComponent:0];
+        return self.cities[provinceIndex][row];
     }
 }
 
-func pickerView(_ pickerView: UIPickerView, 
-               didSelectRow row: Int, 
-               inComponent component: Int) {
+- (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
     // 当省改变时，刷新市列
-    if component == 0 {
-        pickerView.reloadComponent(1)
-        pickerView.selectRow(0, inComponent: 1, animated: true)
+    if (component == 0) {
+        [pickerView reloadComponent:1];
+        [pickerView selectRow:0 inComponent:1 animated:YES];
     }
 }
 ```
 
 ### 自定义视图
 
-```swift
-func pickerView(_ pickerView: UIPickerView, 
-               viewForRow row: Int, 
-               forComponent component: Int, 
-               reusing view: UIView?) -> UIView {
-    
-    let label = (view as? UILabel) ?? UILabel()
-    label.text = fruits[row]
-    label.textAlignment = .center
-    label.font = UIFont.systemFont(ofSize: 20, weight: .medium)
-    label.textColor = .label
-    
-    return label
+```objc
+- (UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)view {
+    UILabel *label = (UILabel *)view;
+    if (!label) {
+        label = [[UILabel alloc] init];
+    }
+    label.text = self.fruits[row];
+    label.textAlignment = NSTextAlignmentCenter;
+    label.font = [UIFont systemFontOfSize:20 weight:UIFontWeightMedium];
+    label.textColor = [UIColor labelColor];
+    return label;
 }
 ```
 
@@ -449,71 +474,68 @@ func pickerView(_ pickerView: UIPickerView,
 
 ### 基础用法
 
-```swift
-let alert = UIAlertController(title: "提示", 
-                             message: "这是一个警报", 
-                             preferredStyle: .alert)
+```objc
+UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"提示" 
+                                                               message:@"这是一个警报" 
+                                                        preferredStyle:UIAlertControllerStyleAlert];
 
 // 添加操作
-alert.addAction(UIAlertAction(title: "取消", style: .cancel, handler: nil))
-alert.addAction(UIAlertAction(title: "确定", style: .default, handler: { _ in
-    print("点击了确定")
-}))
+[alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
+[alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    NSLog(@"点击了确定");
+}]];
 
-present(alert, animated: true, completion: nil)
+[self presentViewController:alert animated:YES completion:nil];
 ```
 
 ### 样式类型
 
-```swift
+```objc
 // 警报样式（居中显示）
-let alert = UIAlertController(title: "标题", message: "消息", preferredStyle: .alert)
+UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"标题" message:@"消息" preferredStyle:UIAlertControllerStyleAlert];
 
 // 动作表样式（从底部弹出）
-let actionSheet = UIAlertController(title: "选择", 
-                                   message: "请选择操作", 
-                                   preferredStyle: .actionSheet)
+UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:@"选择" message:@"请选择操作" preferredStyle:UIAlertControllerStyleActionSheet];
 ```
 
 ### 添加文本输入框
 
-```swift
-let alert = UIAlertController(title: "输入", message: "请输入内容", preferredStyle: .alert)
+```objc
+UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"输入" message:@"请输入内容" preferredStyle:UIAlertControllerStyleAlert];
 
-alert.addTextField { textField in
-    textField.placeholder = "请输入..."
-    textField.keyboardType = .emailAddress
-}
+[alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+    textField.placeholder = @"请输入...";
+    textField.keyboardType = UIKeyboardTypeEmailAddress;
+}];
 
-alert.addAction(UIAlertAction(title: "取消", style: .cancel, handler: nil))
-alert.addAction(UIAlertAction(title: "确定", style: .default, handler: { _ in
-    if let text = alert.textFields?.first?.text {
-        print("输入内容：\(text)")
-    }
-}))
+[alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
+[alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    NSString *text = alert.textFields.firstObject.text;
+    NSLog(@"输入内容：%@", text);
+}]];
 
-present(alert, animated: true, completion: nil)
+[self presentViewController:alert animated:YES completion:nil];
 ```
 
 ### 多个输入框
 
-```swift
-let alert = UIAlertController(title: "登录", message: nil, preferredStyle: .alert)
+```objc
+UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"登录" message:nil preferredStyle:UIAlertControllerStyleAlert];
 
-alert.addTextField { textField in
-    textField.placeholder = "用户名"
-}
+[alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+    textField.placeholder = @"用户名";
+}];
 
-alert.addTextField { textField in
-    textField.placeholder = "密码"
-    textField.isSecureTextEntry = true
-}
+[alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+    textField.placeholder = @"密码";
+    textField.secureTextEntry = YES;
+}];
 
-alert.addAction(UIAlertAction(title: "登录", style: .default, handler: { _ in
-    let username = alert.textFields?[0].text
-    let password = alert.textFields?[1].text
+[alert addAction:[UIAlertAction actionWithTitle:@"登录" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    NSString *username = alert.textFields[0].text;
+    NSString *password = alert.textFields[1].text;
     // 处理登录
-}))
+}]];
 ```
 
 ---
@@ -522,38 +544,38 @@ alert.addAction(UIAlertAction(title: "登录", style: .default, handler: { _ in
 
 ### 基础用法
 
-```swift
-let refreshControl = UIRefreshControl()
-refreshControl.addTarget(self, action: #selector(refreshData(_:)), for: .valueChanged)
-tableView.refreshControl = refreshControl
+```objc
+UIRefreshControl *refreshControl = [[UIRefreshControl alloc] init];
+[refreshControl addTarget:self action:@selector(refreshData:) forControlEvents:UIControlEventValueChanged];
+self.tableView.refreshControl = refreshControl;
 
-@objc func refreshData(_ sender: UIRefreshControl) {
+- (void)refreshData:(UIRefreshControl *)sender {
     // 刷新数据
-    DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-        sender.endRefreshing()
-    }
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [sender endRefreshing];
+    });
 }
 ```
 
 ### 自定义样式
 
-```swift
-if #available(iOS 13.0, *) {
-    refreshControl.tintColor = .systemBlue
-    refreshControl.backgroundColor = .systemBackground
+```objc
+if (@available(iOS 13.0, *)) {
+    refreshControl.tintColor = [UIColor systemBlueColor];
+    refreshControl.backgroundColor = [UIColor systemBackgroundColor];
 }
 
 // 设置属性文本
-refreshControl.attributedTitle = NSAttributedString(string: "下拉刷新")
+refreshControl.attributedTitle = [[NSAttributedString alloc] initWithString:@"下拉刷新"];
 ```
 
 ### 手动触发刷新
 
-```swift
-func triggerRefresh() {
-    refreshControl.beginRefreshing()
-    tableView.contentOffset = CGPoint(x: 0, y: -refreshControl.frame.height)
-    refreshData(refreshControl)
+```objc
+- (void)triggerRefresh {
+    [self.refreshControl beginRefreshing];
+    self.tableView.contentOffset = CGPointMake(0, -self.refreshControl.frame.size.height);
+    [self refreshData:self.refreshControl];
 }
 ```
 
@@ -563,54 +585,58 @@ func triggerRefresh() {
 
 ### 基础用法
 
-```swift
-class SearchViewController: UIViewController, UISearchBarDelegate {
+```objc
+@interface SearchViewController : UIViewController <UISearchBarDelegate>
+
+@property (nonatomic, strong) UISearchBar *searchBar;
+
+@end
+
+@implementation SearchViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
     
-    let searchBar = UISearchBar()
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        searchBar.delegate = self
-        searchBar.placeholder = "搜索..."
-        searchBar.showsCancelButton = true
-        view.addSubview(searchBar)
-    }
-    
-    // 开始搜索
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        print("搜索内容：\(searchBar.text ?? "")")
-        searchBar.resignFirstResponder()
-    }
-    
-    // 文本变化
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        print("搜索文本变化：\(searchText)")
-    }
-    
-    // 取消按钮
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.text = ""
-        searchBar.resignFirstResponder()
-    }
+    self.searchBar = [[UISearchBar alloc] init];
+    self.searchBar.delegate = self;
+    self.searchBar.placeholder = @"搜索...";
+    self.searchBar.showsCancelButton = YES;
+    [self.view addSubview:self.searchBar];
 }
+
+// 开始搜索
+- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
+    NSLog(@"搜索内容：%@", searchBar.text ?: @"");
+    [searchBar resignFirstResponder];
+}
+
+// 文本变化
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
+    NSLog(@"搜索文本变化：%@", searchText);
+}
+
+// 取消按钮
+- (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
+    searchBar.text = @"";
+    [searchBar resignFirstResponder];
+}
+
+@end
 ```
 
 ### 自定义样式
 
-```swift
+```objc
 // 背景色
-searchBar.barTintColor = .systemBlue
+searchBar.barTintColor = [UIColor systemBlueColor];
 
 // 文字颜色
-searchBar.searchTextField.textColor = .white
-searchBar.searchTextField.attributedPlaceholder = NSAttributedString(
-    string: "搜索...",
-    attributes: [.foregroundColor: UIColor.lightGray]
-)
+searchBar.searchTextField.textColor = [UIColor whiteColor];
+searchBar.searchTextField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:@"搜索..." 
+                                                                                  attributes:@{NSForegroundColorAttributeName: [UIColor lightGrayColor]}];
 
 // 按钮颜色
-searchBar.tintColor = .white
+searchBar.tintColor = [UIColor whiteColor];
 ```
 
 ---
