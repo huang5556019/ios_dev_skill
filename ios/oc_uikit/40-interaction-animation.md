@@ -727,41 +727,41 @@ vc.transitioningDelegate = self;
 
 ### 3. 抖动动画
 
-```swift
-func shakeAnimation(view: UIView) {
-    let animation = CAKeyframeAnimation(keyPath: "transform.translation.x")
-    animation.timingFunction = CAMediaTimingFunction(name: .linear)
-    animation.duration = 0.6
-    animation.values = [-20, 20, -20, 20, -10, 10, -5, 5, 0]
-    view.layer.add(animation, forKey: "shake")
+```objc
+- (void)shakeAnimationWithView:(UIView *)view {
+    CAKeyframeAnimation *animation = [CAKeyframeAnimation animationWithKeyPath:@"transform.translation.x"];
+    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+    animation.duration = 0.6;
+    animation.values = @[@(-20), @20, @(-20), @20, @(-10), @10, @(-5), @5, @0];
+    [view.layer addAnimation:animation forKey:@"shake"];
 }
 ```
 
 ### 4. 加载旋转
 
-```swift
-func startLoadingAnimation(view: UIView) {
-    let rotation = CABasicAnimation(keyPath: "transform.rotation")
-    rotation.fromValue = 0
-    rotation.toValue = 2 * .pi
-    rotation.duration = 1.0
-    rotation.repeatCount = .infinity
-    view.layer.add(rotation, forKey: "rotation")
+```objc
+- (void)startLoadingAnimationWithView:(UIView *)view {
+    CABasicAnimation *rotation = [CABasicAnimation animationWithKeyPath:@"transform.rotation"];
+    rotation.fromValue = @0;
+    rotation.toValue = @(2 * M_PI);
+    rotation.duration = 1.0;
+    rotation.repeatCount = HUGE_VALF;
+    [view.layer addAnimation:rotation forKey:@"rotation"];
 }
 
-func stopLoadingAnimation(view: UIView) {
-    view.layer.removeAnimation(forKey: "rotation")
+- (void)stopLoadingAnimationWithView:(UIView *)view {
+    [view.layer removeAnimationForKey:@"rotation"];
 }
 ```
 
 ### 5. 卡片翻转
 
-```swift
-func flipAnimation(view: UIView) {
-    UIView.transition(with: view,
-                     duration: 0.6,
-                     options: .transitionFlipFromLeft,
-                     animations: {
+```objc
+- (void)flipAnimationWithView:(UIView *)view {
+    [UIView transitionWithView:view
+                      duration:0.6
+                       options:UIViewTransitionOptionTransitionFlipFromLeft
+                    animations:^{
         // 切换内容
     })
 }
