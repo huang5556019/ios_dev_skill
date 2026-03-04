@@ -8,179 +8,184 @@
 
 ### 创建自定义控件
 
-```swift
-class CustomCardView: UIView {
-    
-    // MARK: - Properties
-    
-    var title: String = "" {
-        didSet { titleLabel.text = title }
+```objc
+@interface CustomCardView : UIView
+
+@property (nonatomic, copy) NSString *title;
+@property (nonatomic, strong) UIColor *cardColor;
+@property (nonatomic, copy) void (^onTap)(void);
+
+@property (nonatomic, strong) UIView *containerView;
+@property (nonatomic, strong) UIImageView *iconImageView;
+@property (nonatomic, strong) UILabel *titleLabel;
+@property (nonatomic, strong) UILabel *subtitleLabel;
+
+- (void)configureWithIcon:(UIImage *)icon title:(NSString *)title subtitle:(NSString *)subtitle;
+
+@end
+
+@implementation CustomCardView
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        [self setupUI];
     }
+    return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)coder {
+    @throw [NSException exceptionWithName:@"NotImplemented" 
+                                   reason:@"init(coder:) not supported" 
+                                 userInfo:nil];
+}
+
+- (void)setupUI {
+    self.translatesAutoresizingMaskIntoConstraints = NO;
+    self.backgroundColor = [UIColor clearColor];
     
-    var cardColor: UIColor = .white {
-        didSet { backgroundColor = cardColor }
-    }
+    // 容器视图
+    self.containerView = [[UIView alloc] init];
+    self.containerView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.containerView.layer.cornerRadius = 12;
+    self.containerView.layer.shadowColor = [UIColor blackColor].CGColor;
+    self.containerView.layer.shadowOffset = CGSizeMake(0, 2);
+    self.containerView.layer.shadowOpacity = 0.1;
+    self.containerView.layer.shadowRadius = 4;
+    [self addSubview:self.containerView];
     
-    var onTap: (() -> Void)?
+    // 图标
+    self.iconImageView = [[UIImageView alloc] init];
+    self.iconImageView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.iconImageView.contentMode = UIViewContentModeScaleAspectFit;
+    [self.containerView addSubview:self.iconImageView];
     
-    // MARK: - UI Components
+    // 标题
+    self.titleLabel = [[UILabel alloc] init];
+    self.titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    self.titleLabel.font = [UIFont systemFontOfSize:16 weight:UIFontWeightSemibold];
+    self.titleLabel.textColor = [UIColor labelColor];
+    [self.containerView addSubview:self.titleLabel];
     
-    private let containerView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.layer.cornerRadius = 12
-        view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOffset = CGSize(width: 0, height: 2)
-        view.layer.shadowOpacity = 0.1
-        view.layer.shadowRadius = 4
-        return view
-    }()
+    // 副标题
+    self.subtitleLabel = [[UILabel alloc] init];
+    self.subtitleLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    self.subtitleLabel.font = [UIFont systemFontOfSize:14];
+    self.subtitleLabel.textColor = [UIColor secondaryLabelColor];
+    self.subtitleLabel.numberOfLines = 2;
+    [self.containerView addSubview:self.subtitleLabel];
     
-    private let iconImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.contentMode = .scaleAspectFit
-        return imageView
-    }()
-    
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
-        label.textColor = .label
-        return label
-    }()
-    
-    private let subtitleLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.systemFont(ofSize: 14)
-        label.textColor = .secondaryLabel
-        label.numberOfLines = 2
-        return label
-    }()
-    
-    // MARK: - Initialization
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupUI()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    // MARK: - Setup
-    
-    private func setupUI() {
-        translatesAutoresizingMaskIntoConstraints = false
-        backgroundColor = .clear
+    // 约束
+    [NSLayoutConstraint activateConstraints:@[
+        [self.containerView.topAnchor constraintEqualToAnchor:self.topAnchor],
+        [self.containerView.leadingAnchor constraintEqualToAnchor:self.leadingAnchor],
+        [self.containerView.trailingAnchor constraintEqualToAnchor:self.trailingAnchor],
+        [self.containerView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor],
         
-        addSubview(containerView)
-        containerView.addSubview(iconImageView)
-        containerView.addSubview(titleLabel)
-        containerView.addSubview(subtitleLabel)
+        [self.iconImageView.topAnchor constraintEqualToAnchor:self.containerView.topAnchor constant:16],
+        [self.iconImageView.leadingAnchor constraintEqualToAnchor:self.containerView.leadingAnchor constant:16],
+        [self.iconImageView.widthAnchor constraintEqualToConstant:40],
+        [self.iconImageView.heightAnchor constraintEqualToConstant:40],
         
-        NSLayoutConstraint.activate([
-            containerView.topAnchor.constraint(equalTo: topAnchor),
-            containerView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            containerView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            containerView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            
-            iconImageView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 16),
-            iconImageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
-            iconImageView.widthAnchor.constraint(equalToConstant: 40),
-            iconImageView.heightAnchor.constraint(equalToConstant: 40),
-            
-            titleLabel.topAnchor.constraint(equalTo: iconImageView.topAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: iconImageView.trailingAnchor, constant: 12),
-            titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
-            
-            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
-            subtitleLabel.leadingAnchor.constraint(equalTo: iconImageView.trailingAnchor, constant: 12),
-            subtitleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
-            subtitleLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -16)
-        ])
+        [self.titleLabel.topAnchor constraintEqualToAnchor:self.iconImageView.topAnchor],
+        [self.titleLabel.leadingAnchor constraintEqualToAnchor:self.iconImageView.trailingAnchor constant:12],
+        [self.titleLabel.trailingAnchor constraintEqualToAnchor:self.containerView.trailingAnchor constant:-16],
         
-        // 添加点击手势
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
-        addGestureRecognizer(tapGesture)
-    }
+        [self.subtitleLabel.topAnchor constraintEqualToAnchor:self.titleLabel.bottomAnchor constant:4],
+        [self.subtitleLabel.leadingAnchor constraintEqualToAnchor:self.iconImageView.trailingAnchor constant:12],
+        [self.subtitleLabel.trailingAnchor constraintEqualToAnchor:self.containerView.trailingAnchor constant:-16],
+        [self.subtitleLabel.bottomAnchor constraintEqualToAnchor:self.containerView.bottomAnchor constant:-16]
+    ]];
     
-    @objc private func handleTap() {
-        onTap?()
-    }
-    
-    // MARK: - Configuration
-    
-    func configure(icon: UIImage?, title: String, subtitle: String) {
-        iconImageView.image = icon
-        self.title = title
-        titleLabel.text = title
-        subtitleLabel.text = subtitle
-    }
-    
-    // MARK: - Layout
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        // 更新阴影路径以提高性能
-        containerView.layer.shadowPath = UIBezierPath(roundedRect: containerView.bounds, 
-                                                       cornerRadius: 12).cgPath
+    // 添加点击手势
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap)];
+    [self addGestureRecognizer:tapGesture];
+}
+
+- (void)handleTap {
+    if (self.onTap) {
+        self.onTap();
     }
 }
 
-// 使用示例
-let card = CustomCardView()
-card.configure(icon: UIImage(systemName: "star"),
-               title: "标题",
-               subtitle: "这是副标题描述")
-card.onTap = {
-    print("卡片被点击")
+- (void)configureWithIcon:(UIImage *)icon title:(NSString *)title subtitle:(NSString *)subtitle {
+    self.iconImageView.image = icon;
+    self.title = title;
+    self.titleLabel.text = title;
+    self.subtitleLabel.text = subtitle;
 }
-view.addSubview(card)
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    // 更新阴影路径以提高性能
+    self.containerView.layer.shadowPath = [UIBezierPath bezierPathWithRoundedRect:self.containerView.bounds cornerRadius:12].CGPath;
+}
+
+@end
+
+// 使用示例
+CustomCardView *card = [[CustomCardView alloc] init];
+[card configureWithIcon:[UIImage systemImageNamed:@"star"] title:@"标题" subtitle:@"这是副标题描述"];
+card.onTap = ^{
+    NSLog(@"卡片被点击");
+};
+[view addSubview:card];
 ```
 
 ### 使用 IBDesignables
 
-```swift
-@IBDesignable
-class GradientButton: UIButton {
-    
-    @IBInspectable var startColor: UIColor = .systemBlue
-    @IBInspectable var endColor: UIColor = .systemPurple
-    @IBInspectable var cornerRadiusValue: CGFloat = 8
-    
-    private let gradientLayer = CAGradientLayer()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupGradient()
+```objc
+IB_DESIGNABLE
+@interface GradientButton : UIButton
+
+@property (nonatomic, strong) CAGradientLayer *gradientLayer;
+@property (nonatomic) IBInspectable UIColor *startColor;
+@property (nonatomic) IBInspectable UIColor *endColor;
+@property (nonatomic) IBInspectable CGFloat cornerRadiusValue;
+
+@end
+
+@implementation GradientButton
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        [self setupGradient];
     }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setupGradient()
-    }
-    
-    private func setupGradient() {
-        gradientLayer.colors = [startColor.cgColor, endColor.cgColor]
-        gradientLayer.startPoint = CGPoint(x: 0, y: 0)
-        gradientLayer.endPoint = CGPoint(x: 1, y: 1)
-        gradientLayer.cornerRadius = cornerRadiusValue
-        layer.insertSublayer(gradientLayer, at: 0)
-        
-        setTitleColor(.white, for: .normal)
-        titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        gradientLayer.frame = bounds
-        gradientLayer.cornerRadius = cornerRadiusValue
-    }
+    return self;
 }
+
+- (instancetype)initWithCoder:(NSCoder *)coder {
+    self = [super initWithCoder:coder];
+    if (self) {
+        [self setupGradient];
+    }
+    return self;
+}
+
+- (void)setupGradient {
+    self.startColor = [UIColor systemBlueColor];
+    self.endColor = [UIColor systemPurpleColor];
+    self.cornerRadiusValue = 8;
+    
+    self.gradientLayer = [CAGradientLayer layer];
+    self.gradientLayer.colors = @[(id)self.startColor.CGColor, (id)self.endColor.CGColor];
+    self.gradientLayer.startPoint = CGPointMake(0, 0);
+    self.gradientLayer.endPoint = CGPointMake(1, 1);
+    self.gradientLayer.cornerRadius = self.cornerRadiusValue;
+    [self.layer insertSublayer:self.gradientLayer atIndex:0];
+    
+    [self setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    self.titleLabel.font = [UIFont systemFontOfSize:16 weight:UIFontWeightSemibold];
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    self.gradientLayer.frame = self.bounds;
+    self.gradientLayer.cornerRadius = self.cornerRadiusValue;
+}
+
+@end
 ```
 
 ---
@@ -189,170 +194,219 @@ class GradientButton: UIButton {
 
 ### TableView 性能优化
 
-```swift
-class OptimizedTableViewController: UITableViewController {
-    
-    // 1. 使用 deque 重用机制
-    override func tableView(_ tableView: UITableView, 
-                           cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        // 配置 cell
-        return cell
-    }
-    
-    // 2. 预计算行高
-    private var rowHeights: [Int: CGFloat] = [:]
-    
-    func calculateRowHeight(for indexPath: IndexPath) -> CGFloat {
-        if let height = rowHeights[indexPath.row] {
-            return height
-        }
-        
-        // 计算高度
-        let height = calculateHeight(for: items[indexPath.row])
-        rowHeights[indexPath.row] = height
-        return height
-    }
-    
-    // 3. 异步图片加载
-    func loadImage(for imageView: UIImageView, at indexPath: IndexPath) {
-        // 取消之前的请求
-        imageView.image = nil
-        
-        // 异步加载
-        DispatchQueue.global().async { [weak self] in
-            guard let self = self else { return }
-            let image = self.loadImageFromDisk(at: indexPath)
-            
-            DispatchQueue.main.async {
-                // 检查 cell 是否还在显示
-                if let cell = self.tableView.cellForRow(at: indexPath) {
-                    cell.imageView?.image = image
-                }
-            }
-        }
-    }
-    
-    // 4. 减少 subview 数量
-    class OptimizedCell: UITableViewCell {
-        private let contentStackView = UIStackView()
-        
-        override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-            super.init(style: style, reuseIdentifier: reuseIdentifier)
-            setupOptimizedLayout()
-        }
-        
-        private func setupOptimizedLayout() {
-            // 使用 stackview 减少约束数量
-            contentView.addSubview(contentStackView)
-            contentStackView.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activate([
-                contentStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
-                contentStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-                contentStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-                contentStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8)
-            ])
-        }
-    }
+```objc
+@interface OptimizedTableViewController : UITableViewController
+
+@property (nonatomic, strong) NSDictionary<NSNumber *, NSNumber *> *rowHeights;
+@property (nonatomic, strong) NSArray *items;
+
+@end
+
+@implementation OptimizedTableViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.rowHeights = @{};
 }
+
+// 1. 使用 deque 重用机制
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
+    // 配置 cell
+    return cell;
+}
+
+// 2. 预计算行高
+- (CGFloat)calculateRowHeightForIndexPath:(NSIndexPath *)indexPath {
+    NSNumber *rowKey = @(indexPath.row);
+    NSNumber *height = self.rowHeights[rowKey];
+    if (height) {
+        return [height floatValue];
+    }
+    
+    // 计算高度
+    CGFloat calculatedHeight = [self calculateHeightForItem:self.items[indexPath.row]];
+    self.rowHeights = [self.rowHeights dictionaryWithObject:@(calculatedHeight) forKey:rowKey];
+    return calculatedHeight;
+}
+
+// 3. 异步图片加载
+- (void)loadImageForImageView:(UIImageView *)imageView atIndexPath:(NSIndexPath *)indexPath {
+    // 取消之前的请求
+    imageView.image = nil;
+    
+    // 异步加载
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        __weak typeof(self) weakSelf = self;
+        UIImage *image = [weakSelf loadImageFromDiskAtIndexPath:indexPath];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // 检查 cell 是否还在显示
+            UITableViewCell *cell = [weakSelf.tableView cellForRowAtIndexPath:indexPath];
+            if (cell) {
+                cell.imageView.image = image;
+            }
+        });
+    });
+}
+
+// 4. 减少 subview 数量
+@interface OptimizedCell : UITableViewCell
+
+@property (nonatomic, strong) UIStackView *contentStackView;
+
+@end
+
+@implementation OptimizedCell
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    if (self) {
+        [self setupOptimizedLayout];
+    }
+    return self;
+}
+
+- (void)setupOptimizedLayout {
+    // 使用 stackview 减少约束数量
+    [self.contentView addSubview:self.contentStackView];
+    self.contentStackView.translatesAutoresizingMaskIntoConstraints = NO;
+    [NSLayoutConstraint activateConstraints:@[
+        [self.contentStackView.topAnchor constraintEqualToAnchor:self.contentView.topAnchor constant:8],
+        [self.contentStackView.leadingAnchor constraintEqualToAnchor:self.contentView.leadingAnchor constant:16],
+        [self.contentStackView.trailingAnchor constraintEqualToAnchor:self.contentView.trailingAnchor constant:-16],
+        [self.contentStackView.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor constant:-8]
+    ]];
+}
+
+@end
 ```
 
 ### 内存优化
 
-```swift
-class MemoryOptimizedViewController: UIViewController {
-    
-    // 1. 使用 weak 避免循环引用
-    weak var delegate: DataDelegate?
-    
-    // 2. 延迟加载大对象
-    lazy var largeImage: UIImage? = {
-        return UIImage(named: "large_image")
-    }()
-    
-    // 3. 及时释放资源
-    deinit {
-        // 移除通知观察者
-        NotificationCenter.default.removeObserver(self)
-        
-        // 取消网络请求
-        URLSession.shared.getAllTasks { tasks in
-            tasks.forEach { $0.cancel() }
-        }
-        
-        // 释放缓存
-        imageCache.removeAll()
+```objc
+@protocol DataDelegate <NSObject>
+@end
+
+@interface MemoryOptimizedViewController : UIViewController
+
+@property (nonatomic, weak) id<DataDelegate> delegate;
+@property (nonatomic, strong) UIImage *largeImage;
+@property (nonatomic, strong) NSCache<NSString *, UIImage *> *imageCache;
+
+@end
+
+@implementation MemoryOptimizedViewController
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _imageCache = [[NSCache alloc] init];
     }
-    
-    // 4. 使用缓存
-    private let imageCache = NSCache<NSString, UIImage>()
-    
-    func loadImage(with key: String) -> UIImage? {
-        if let cached = imageCache.object(forKey: key as NSString) {
-            return cached
-        }
-        
-        guard let image = UIImage(named: key) else { return nil }
-        imageCache.setObject(image, forKey: key as NSString)
-        return image
-    }
-    
-    // 5. 内存警告处理
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        imageCache.removeAllObjects()
-        largeImage = nil
-    }
+    return self;
 }
+
+// 2. 延迟加载大对象
+- (UIImage *)largeImage {
+    if (!_largeImage) {
+        _largeImage = [UIImage imageNamed:@"large_image"];
+    }
+    return _largeImage;
+}
+
+// 3. 及时释放资源
+- (void)dealloc {
+    // 移除通知观察者
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
+    // 取消网络请求
+    [[NSURLSession sharedSession] getAllTasksWithCompletionHandler:^(NSArray *tasks) {
+        for (NSURLSessionTask *task in tasks) {
+            [task cancel];
+        }
+    }];
+    
+    // 释放缓存
+    [self.imageCache removeAllObjects];
+}
+
+// 4. 使用缓存
+- (UIImage *)loadImageWithKey:(NSString *)key {
+    UIImage *cached = [self.imageCache objectForKey:key];
+    if (cached) {
+        return cached;
+    }
+    
+    UIImage *image = [UIImage imageNamed:key];
+    if (!image) {
+        return nil;
+    }
+    [self.imageCache setObject:image forKey:key];
+    return image;
+}
+
+// 5. 内存警告处理
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    [self.imageCache removeAllObjects];
+    self.largeImage = nil;
+}
+
+@end
 ```
 
 ### 渲染优化
 
-```swift
-class RenderOptimizedView: UIView {
+```objc
+@interface RenderOptimizedView : UIView
+
+@end
+
+@implementation RenderOptimizedView
+
+// 1. 使用 shouldRasterize 缓存复杂视图
+- (void)didMoveToWindow {
+    [super didMoveToWindow];
     
-    // 1. 使用 shouldRasterize 缓存复杂视图
-    override func didMoveToWindow() {
-        super.didMoveToWindow()
-        
-        if window != nil {
-            layer.shouldRasterize = true
-            layer.rasterizationScale = UIScreen.main.scale
-        } else {
-            layer.shouldRasterize = false
-        }
-    }
-    
-    // 2. 优化阴影性能
-    func setupOptimizedShadow() {
-        layer.shadowColor = UIColor.black.cgColor
-        layer.shadowOffset = CGSize(width: 0, height: 2)
-        layer.shadowOpacity = 0.2
-        layer.shadowRadius = 4
-        // 关键：设置 shadowPath
-        layer.shadowPath = UIBezierPath(rect: bounds).cgPath
-    }
-    
-    // 3. 避免离屏渲染
-    override func draw(_ rect: CGRect) {
-        // 使用 Core Graphics 直接绘制
-        let context = UIGraphicsGetCurrentContext()
-        context?.setFillColor(UIColor.white.cgColor)
-        context?.fill(rect)
-    }
-    
-    // 4. 批量更新
-    func updateMultipleProperties() {
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
-        
-        // 批量更新属性
-        layer.opacity = 0.5
-        layer.transform = CATransform3DMakeScale(1.1, 1.1, 1)
-        
-        CATransaction.commit()
+    if (self.window != nil) {
+        self.layer.shouldRasterize = YES;
+        self.layer.rasterizationScale = [UIScreen mainScreen].scale;
+    } else {
+        self.layer.shouldRasterize = NO;
     }
 }
+
+// 2. 优化阴影性能
+- (void)setupOptimizedShadow {
+    self.layer.shadowColor = [UIColor blackColor].CGColor;
+    self.layer.shadowOffset = CGSizeMake(0, 2);
+    self.layer.shadowOpacity = 0.2;
+    self.layer.shadowRadius = 4;
+    // 关键：设置 shadowPath
+    self.layer.shadowPath = [UIBezierPath bezierPathWithRect:self.bounds].CGPath;
+}
+
+// 3. 避免离屏渲染
+- (void)drawRect:(CGRect)rect {
+    // 使用 Core Graphics 直接绘制
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextSetFillColorWithColor(context, [UIColor whiteColor].CGColor);
+    CGContextFillRect(context, rect);
+}
+
+// 4. 批量更新
+- (void)updateMultipleProperties {
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+    
+    // 批量更新属性
+    self.layer.opacity = 0.5;
+    self.layer.transform = CATransform3DMakeScale(1.1, 1.1, 1);
+    
+    [CATransaction commit];
+}
+
+@end
 ```
 
 ---
@@ -361,265 +415,303 @@ class RenderOptimizedView: UIView {
 
 ### Safe Area 适配
 
-```swift
-class SafeAreaAdaptiveView: UIView {
-    
-    private let contentLabel = UILabel()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupWithSafeArea()
+```objc
+@interface SafeAreaAdaptiveView : UIView
+
+@property (nonatomic, strong) UILabel *contentLabel;
+
+@end
+
+@implementation SafeAreaAdaptiveView
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        [self setupWithSafeArea];
     }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    private func setupWithSafeArea() {
-        addSubview(contentLabel)
-        contentLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        // 使用 safeAreaLayoutGuide
-        NSLayoutConstraint.activate([
-            contentLabel.topAnchor.constraint(
-                equalTo: safeAreaLayoutGuide.topAnchor, constant: 16),
-            contentLabel.leadingAnchor.constraint(
-                equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            contentLabel.trailingAnchor.constraint(
-                equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            contentLabel.bottomAnchor.constraint(
-                equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -16)
-        ])
-    }
-    
-    // 监听 Safe Area 变化
-    override func safeAreaInsetsDidChange() {
-        super.safeAreaInsetsDidChange()
-        print("Safe Area 变化：\(safeAreaInsets)")
-    }
+    return self;
 }
+
+- (instancetype)initWithCoder:(NSCoder *)coder {
+    @throw [NSException exceptionWithName:@"NotImplemented" 
+                                   reason:@"init(coder:) not supported" 
+                                 userInfo:nil];
+}
+
+- (void)setupWithSafeArea {
+    self.contentLabel = [[UILabel alloc] init];
+    [self addSubview:self.contentLabel];
+    self.contentLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    // 使用 safeAreaLayoutGuide
+    [NSLayoutConstraint activateConstraints:@[
+        [self.contentLabel.topAnchor constraintEqualToAnchor:self.safeAreaLayoutGuide.topAnchor constant:16],
+        [self.contentLabel.leadingAnchor constraintEqualToAnchor:self.safeAreaLayoutGuide.leadingAnchor constant:16],
+        [self.contentLabel.trailingAnchor constraintEqualToAnchor:self.safeAreaLayoutGuide.trailingAnchor constant:-16],
+        [self.contentLabel.bottomAnchor constraintEqualToAnchor:self.safeAreaLayoutGuide.bottomAnchor constant:-16]
+    ]];
+}
+
+// 监听 Safe Area 变化
+- (void)safeAreaInsetsDidChange {
+    [super safeAreaInsetsDidChange];
+    NSLog(@"Safe Area 变化：%@", NSStringFromUIEdgeInsets(self.safeAreaInsets));
+}
+
+@end
 ```
 
 ### 尺寸类适配
 
-```swift
-class AdaptiveViewController: UIViewController {
+```objc
+@interface AdaptiveViewController : UIViewController
+
+@property (nonatomic, assign) UIUserInterfaceSizeClass horizontalSizeClass;
+@property (nonatomic, assign) UIUserInterfaceSizeClass verticalSizeClass;
+
+@end
+
+@implementation AdaptiveViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self updateForCurrentTraitCollection];
+}
+
+- (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    [super willTransitionToTraitCollection:newCollection withTransitionCoordinator:coordinator];
     
-    private var horizontalSizeClass: UIUserInterfaceSizeClass = .unspecified
-    private var verticalSizeClass: UIUserInterfaceSizeClass = .unspecified
+    [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+        [self updateForCurrentTraitCollection];
+    } completion:nil];
+}
+
+- (void)updateForCurrentTraitCollection {
+    self.horizontalSizeClass = self.traitCollection.horizontalSizeClass;
+    self.verticalSizeClass = self.traitCollection.verticalSizeClass;
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        updateForCurrentTraitCollection()
-    }
-    
-    override func willTransition(to newCollection: UITraitCollection, 
-                                with coordinator: UIViewControllerTransitionCoordinator) {
-        super.willTransition(to: newCollection, with: coordinator)
-        
-        coordinator.animate(alongsideTransition: { _ in
-            self.updateForCurrentTraitCollection()
-        })
-    }
-    
-    private func updateForCurrentTraitCollection() {
-        horizontalSizeClass = traitCollection.horizontalSizeClass
-        verticalSizeClass = traitCollection.verticalSizeClass
-        
-        switch (horizontalSizeClass, verticalSizeClass) {
-        case (.regular, .regular):
-            // iPad 或 iPhone Plus 横屏
-            setupForRegularRegular()
-        case (.compact, .regular):
-            // iPhone 竖屏
-            setupForCompactRegular()
-        case (.compact, .compact):
-            // iPhone 横屏
-            setupForCompactCompact()
-        default:
-            break
-        }
-    }
-    
-    private func setupForRegularRegular() {
-        // iPad 布局
-        print("iPad 布局")
-    }
-    
-    private func setupForCompactRegular() {
-        // iPhone 竖屏布局
-        print("iPhone 竖屏布局")
-    }
-    
-    private func setupForCompactCompact() {
-        // iPhone 横屏布局
-        print("iPhone 横屏布局")
+    if (self.horizontalSizeClass == UIUserInterfaceSizeClassRegular && 
+        self.verticalSizeClass == UIUserInterfaceSizeClassRegular) {
+        // iPad 或 iPhone Plus 横屏
+        [self setupForRegularRegular];
+    } else if (self.horizontalSizeClass == UIUserInterfaceSizeClassCompact && 
+               self.verticalSizeClass == UIUserInterfaceSizeClassRegular) {
+        // iPhone 竖屏
+        [self setupForCompactRegular];
+    } else if (self.horizontalSizeClass == UIUserInterfaceSizeClassCompact && 
+               self.verticalSizeClass == UIUserInterfaceSizeClassCompact) {
+        // iPhone 横屏
+        [self setupForCompactCompact];
     }
 }
+
+- (void)setupForRegularRegular {
+    // iPad 布局
+    NSLog(@"iPad 布局");
+}
+
+- (void)setupForCompactRegular {
+    // iPhone 竖屏布局
+    NSLog(@"iPhone 竖屏布局");
+}
+
+- (void)setupForCompactCompact {
+    // iPhone 横屏布局
+    NSLog(@"iPhone 横屏布局");
+}
+
+@end
 ```
 
 ### 多窗口适配
 
-```swift
+```objc
 @available(iOS 13.0, *)
-class MultiWindowAdapter: UIResponder, UIWindowSceneDelegate {
-    
-    func scene(_ scene: UIScene, 
-               willConnectTo session: UISceneSession, 
-               options connectionOptions: UIScene.ConnectionOptions) {
-        
-        guard let windowScene = (scene as? UIWindowScene) else { return }
-        
-        // 根据窗口大小适配布局
-        let traitCollection = windowScene.traitCollection
-        
-        if traitCollection.horizontalSizeClass == .regular {
-            // 宽屏布局
-            setupWideLayout(in: windowScene)
-        } else {
-            // 窄屏布局
-            setupNarrowLayout(in: windowScene)
-        }
+@interface MultiWindowAdapter : UIResponder <UIWindowSceneDelegate>
+
+@end
+
+@implementation MultiWindowAdapter
+
+- (void)scene:(UIScene *)scene willConnectToSession:(UISceneSession *)session options:(UISceneConnectionOptions *)connectionOptions {
+    UIWindowScene *windowScene = (UIWindowScene *)scene;
+    if (!windowScene) {
+        return;
     }
     
-    private func setupWideLayout(in scene: UIWindowScene) {
-        // 使用分栏布局
-        let splitVC = UISplitViewController()
-        // ...
-    }
+    // 根据窗口大小适配布局
+    UITraitCollection *traitCollection = windowScene.traitCollection;
     
-    private func setupNarrowLayout(in scene: UIWindowScene) {
-        // 使用导航布局
-        let navVC = UINavigationController()
-        // ...
+    if (traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassRegular) {
+        // 宽屏布局
+        [self setupWideLayoutInScene:windowScene];
+    } else {
+        // 窄屏布局
+        [self setupNarrowLayoutInScene:windowScene];
     }
 }
+
+- (void)setupWideLayoutInScene:(UIWindowScene *)scene {
+    // 使用分栏布局
+    UISplitViewController *splitVC = [[UISplitViewController alloc] init];
+    // ...
+}
+
+- (void)setupNarrowLayoutInScene:(UIWindowScene *)scene {
+    // 使用导航布局
+    UINavigationController *navVC = [[UINavigationController alloc] init];
+    // ...
+}
+
+@end
 ```
 
 ---
 
 ## 深色模式适配
 
-```swift
-class DarkModeCompatibleView: UIView {
-    
-    // 使用动态颜色
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .label  // 自动适配深色模式
-        return label
-    }()
-    
-    private let containerView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemBackground  // 自动适配
-        return view
-    }()
-    
-    // 自定义动态颜色
-    private func customDynamicColor() -> UIColor {
-        return UIColor { traitCollection in
-            switch traitCollection.userInterfaceStyle {
-            case .dark:
-                return UIColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0)
-            case .light, .unspecified:
-                return UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 1.0)
-            @unknown default:
-                return .white
-            }
-        }
-    }
-    
-    // 监听模式变化
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
+```objc
+@interface DarkModeCompatibleView : UIView
+
+@property (nonatomic, strong) UILabel *titleLabel;
+@property (nonatomic, strong) UIView *containerView;
+
+@end
+
+@implementation DarkModeCompatibleView
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        // 使用动态颜色
+        self.titleLabel = [[UILabel alloc] init];
+        self.titleLabel.textColor = [UIColor labelColor];  // 自动适配深色模式
         
-        if previousTraitCollection?.userInterfaceStyle != traitCollection.userInterfaceStyle {
-            // 深色模式切换
-            updateForDarkMode()
-        }
+        self.containerView = [[UIView alloc] init];
+        self.containerView.backgroundColor = [UIColor systemBackgroundColor];  // 自动适配
     }
-    
-    private func updateForDarkMode() {
-        // 更新需要特殊处理的 UI
-        UIView.animate(withDuration: 0.3) {
-            self.backgroundColor = self.customDynamicColor()
+    return self;
+}
+
+// 自定义动态颜色
+- (UIColor *)customDynamicColor {
+    return [UIColor colorWithDynamicProvider:^UIColor *(UITraitCollection *traitCollection) {
+        if (traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark) {
+            return [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
+        } else {
+            return [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
         }
+    }];
+}
+
+// 监听模式变化
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
+    [super traitCollectionDidChange:previousTraitCollection];
+    
+    if (previousTraitCollection.userInterfaceStyle != self.traitCollection.userInterfaceStyle) {
+        // 深色模式切换
+        [self updateForDarkMode];
     }
 }
+
+- (void)updateForDarkMode {
+    // 更新需要特殊处理的 UI
+    [UIView animateWithDuration:0.3 animations:^{
+        self.backgroundColor = [self customDynamicColor];
+    }];
+}
+
+@end
 ```
 
 ---
 
 ## 辅助功能（Accessibility）
 
-```swift
-class AccessibleButton: UIButton {
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupAccessibility()
+```objc
+@interface AccessibleButton : UIButton
+
+@end
+
+@implementation AccessibleButton
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        [self setupAccessibility];
     }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    private func setupAccessibility() {
-        // 设置辅助功能标签
-        accessibilityLabel = "提交按钮"
-        
-        // 设置辅助功能提示
-        accessibilityHint = "双击以提交表单"
-        
-        // 设置按钮类型
-        accessibilityTraits = .button
-        
-        // 设置是否可访问
-        isAccessibilityElement = true
-        
-        // 自定义值
-        accessibilityValue = "未选中"
-    }
-    
-    override var isSelected: Bool {
-        didSet {
-            accessibilityValue = isSelected ? "已选中" : "未选中"
-            accessibilityPerformUpdate()
-        }
-    }
+    return self;
 }
 
-// 支持动态字体
-class DynamicTypeLabel: UILabel {
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupDynamicType()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    private func setupDynamicType() {
-        font = .preferredFont(forTextStyle: .body)
-        adjustsFontForContentSizeCategory = true
-        
-        // 监听字体变化
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(fontDidChange),
-            name: UIContentSizeCategory.didChangeNotification,
-            object: nil
-        )
-    }
-    
-    @objc private func fontDidChange() {
-        font = .preferredFont(forTextStyle: .body)
-        setNeedsLayout()
-    }
+- (instancetype)initWithCoder:(NSCoder *)coder {
+    @throw [NSException exceptionWithName:@"NotImplemented" 
+                                   reason:@"init(coder:) not supported" 
+                                 userInfo:nil];
 }
+
+- (void)setupAccessibility {
+    // 设置辅助功能标签
+    self.accessibilityLabel = @"提交按钮";
+    
+    // 设置辅助功能提示
+    self.accessibilityHint = @"双击以提交表单";
+    
+    // 设置按钮类型
+    self.accessibilityTraits = UIAccessibilityTraitButton;
+    
+    // 设置是否可访问
+    self.isAccessibilityElement = YES;
+    
+    // 自定义值
+    self.accessibilityValue = @"未选中";
+}
+
+- (void)setSelected:(BOOL)selected {
+    [super setSelected:selected];
+    self.accessibilityValue = selected ? @"已选中" : @"未选中";
+    [self accessibilityPerformUpdate];
+}
+
+@end
+
+// 支持动态字体
+@interface DynamicTypeLabel : UILabel
+
+@end
+
+@implementation DynamicTypeLabel
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        [self setupDynamicType];
+    }
+    return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)coder {
+    @throw [NSException exceptionWithName:@"NotImplemented" 
+                                   reason:@"init(coder:) not supported" 
+                                 userInfo:nil];
+}
+
+- (void)setupDynamicType {
+    self.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+    self.adjustsFontForContentSizeCategory = YES;
+    
+    // 监听字体变化
+    [[NSNotificationCenter defaultCenter] addObserver:self 
+                                             selector:@selector(fontDidChange) 
+                                                 name:UIContentSizeCategoryDidChangeNotification 
+                                               object:nil];
+}
+
+- (void)fontDidChange {
+    self.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+    [self setNeedsLayout];
+}
+
+@end
 ```
 
 ---
