@@ -8,79 +8,79 @@
 
 ### 基础用法
 
-```swift
-let button = UIButton(type: .system)
-button.setTitle("点击我", for: .normal)
-button.setTitleColor(.systemBlue, for: .normal)
-button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
+```objc
+UIButton *button = [UIButton buttonWithType:UIButtonTypeSystem];
+[button setTitle:@"点击我" forState:UIControlStateNormal];
+[button setTitleColor:[UIColor systemBlueColor] forState:UIControlStateNormal];
+[button addTarget:self action:@selector(buttonTapped) forControlEvents:UIControlEventTouchUpInside];
 
-@objc func buttonTapped() {
-    print("按钮被点击")
+- (void)buttonTapped {
+    NSLog(@"按钮被点击");
 }
 ```
 
 ### 样式设置
 
-```swift
+```objc
 // 背景色
-button.backgroundColor = .systemBlue
+button.backgroundColor = [UIColor systemBlueColor];
 
 // 圆角
-button.layer.cornerRadius = 8
-button.clipsToBounds = true
+button.layer.cornerRadius = 8;
+button.clipsToBounds = YES;
 
 // 边框
-button.layer.borderWidth = 1
-button.layer.borderColor = UIColor.systemBlue.cgColor
+button.layer.borderWidth = 1;
+button.layer.borderColor = [UIColor systemBlueColor].CGColor;
 
 // 内容EdgeInsets
-button.contentEdgeInsets = UIEdgeInsets(top: 10, left: 20, bottom: 10, right: 20)
+button.contentEdgeInsets = UIEdgeInsetsMake(10, 20, 10, 20);
 
 // 标题EdgeInsets
-button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0)
+button.titleEdgeInsets = UIEdgeInsetsMake(0, 10, 0, 0);
 
 // 图片
-button.setImage(UIImage(systemName: "star"), for: .normal)
-button.imageView?.contentMode = .scaleAspectFit
+[button setImage:[UIImage systemImageNamed:@"star"] forState:UIControlStateNormal];
+button.imageView.contentMode = UIViewContentModeScaleAspectFit;
 ```
 
 ### 不同状态
 
-```swift
+```objc
 // 正常状态
-button.setTitle("提交", for: .normal)
-button.backgroundColor = .systemBlue
+[button setTitle:@"提交" forState:UIControlStateNormal];
+button.backgroundColor = [UIColor systemBlueColor];
 
 // 高亮状态
-button.setTitle("提交中...", for: .highlighted)
+[button setTitle:@"提交中..." forState:UIControlStateHighlighted];
 
 // 禁用状态
-button.isEnabled = false
-button.setTitle("不可用", for: .disabled)
-button.backgroundColor = .gray
+button.enabled = NO;
+[button setTitle:@"不可用" forState:UIControlStateDisabled];
+button.backgroundColor = [UIColor grayColor];
 
 // 选中状态
-button.isSelected = true
-button.setTitle("已选中", for: .selected)
+button.selected = YES;
+[button setTitle:@"已选中" forState:UIControlStateSelected];
 ```
 
 ### 按钮类型
 
-```swift
+```objc
 // 系统按钮（推荐）
-let systemBtn = UIButton(type: .system)
+UIButton *systemBtn = [UIButton buttonWithType:UIButtonTypeSystem];
 
 // 自定义按钮
-let customBtn = UIButton(type: .custom)
+UIButton *customBtn = [UIButton buttonWithType:UIButtonTypeCustom];
 
 // 带详情的按钮
-let detailBtn = UIButton(type: .detailDisclosure)
+UIButton *detailBtn = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
 
 // 信息按钮
-let infoBtn = UIButton(type: .infoLight)
+UIButton *infoBtn = [UIButton buttonWithType:UIButtonTypeInfoLight];
 
 // 联系添加按钮
-let contactBtn = UIButton(type: .contactAdd)
+UIButton *contactBtn = [UIButton buttonWithType:UIButtonTypeContactAdd];
 ```
 
 ---
@@ -89,52 +89,99 @@ let contactBtn = UIButton(type: .contactAdd)
 
 ### 基础用法
 
-```swift
-let label = UILabel()
-label.text = "Hello World"
-label.font = UIFont.systemFont(ofSize: 16)
-label.textColor = .label
-label.textAlignment = .center
+```objc
+UILabel *label = [[UILabel alloc] init];
+label.text = @"Hello World";
+label.font = [UIFont systemFontOfSize:16];
+label.textColor = [UIColor labelColor];
+label.textAlignment = NSTextAlignmentCenter;
 ```
 
 ### 多行文本
 
-```swift
+```objc
 // 允许换行
-label.numberOfLines = 0
+label.numberOfLines = 0;
 
 // 限制行数
-label.numberOfLines = 3
+label.numberOfLines = 3;
 
 // 截断模式
-label.lineBreakMode = .byTruncatingTail  // 末尾省略
-label.lineBreakMode = .byTruncatingHead  // 开头省略
-label.lineBreakMode = .byTruncatingMiddle // 中间省略
-label.lineBreakMode = .byWordWrapping     // 按词换行
+label.lineBreakMode = NSLineBreakByTruncatingTail;  // 末尾省略
+label.lineBreakMode = NSLineBreakByTruncatingHead;  // 开头省略
+label.lineBreakMode = NSLineBreakByTruncatingMiddle; // 中间省略
+label.lineBreakMode = NSLineBreakByWordWrapping;    // 按词换行
 ```
 
 ### 富文本
 
-```swift
-let attributedText = NSMutableAttributedString(string: "Hello World")
-attributedText.addAttribute(.font, 
-                           value: UIFont.boldSystemFont(ofSize: 18),
-                           range: NSRange(location: 0, length: 5))
-attributedText.addAttribute(.foregroundColor,
-                           value: UIColor.red,
-                           range: NSRange(location: 6, length: 5))
-label.attributedText = attributedText
+```objc
+NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:@"Hello World"];
+[attributedText addAttribute:NSFontAttributeName 
+                       value:[UIFont boldSystemFontOfSize:18] 
+                       range:NSMakeRange(0, 5)];
+[attributedText addAttribute:NSForegroundColorAttributeName 
+                       value:[UIColor redColor] 
+                       range:NSMakeRange(6, 5)];
+label.attributedText = attributedText;
 ```
 
 ### 高级属性
 
-```swift
+```objc
 // 阴影
-label.shadowColor = .gray
-label.shadowOffset = CGSize(width: 1, height: 1)
+label.shadowColor = [UIColor grayColor];
+label.shadowOffset = CGSizeMake(1, 1);
 
 // 行间距
-let paragraphStyle = NSMutableParagraphStyle()
+NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+paragraphStyle.lineHeightMultiple = 1.5;
+label.attributedText = [[NSAttributedString alloc] initWithString:@"多行文本"
+                                                          attributes:@{NSParagraphStyleAttributeName: paragraphStyle}];
+
+// 自适应字体
+label.adjustsFontForContentSizeCategory = YES;
+label.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+```
+
+### 多行文本
+
+```objc
+// 允许换行
+label.numberOfLines = 0;
+
+// 限制行数
+label.numberOfLines = 3;
+
+// 截断模式
+label.lineBreakMode = NSLineBreakByTruncatingTail;  // 末尾省略
+label.lineBreakMode = NSLineBreakByTruncatingHead;  // 开头省略
+label.lineBreakMode = NSLineBreakByTruncatingMiddle; // 中间省略
+label.lineBreakMode = NSLineBreakByWordWrapping;     // 按词换行
+```
+
+### 富文本
+
+```objc
+NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:@"Hello World"];
+[attributedText addAttribute:NSFontAttributeName 
+                       value:[UIFont boldSystemFontOfSize:18] 
+                       range:NSMakeRange(0, 5)];
+[attributedText addAttribute:NSForegroundColorAttributeName 
+                       value:[UIColor redColor] 
+                       range:NSMakeRange(6, 5)];
+label.attributedText = attributedText;
+```
+
+### 高级属性
+
+```objc
+// 阴影
+label.shadowColor = [UIColor grayColor];
+label.shadowOffset = CGSizeMake(1, 1);
+
+// 行间距
+NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
 paragraphStyle.lineHeightMultiple = 1.5
 label.attributedText = NSAttributedString(
     string: "多行文本",
@@ -152,103 +199,112 @@ label.font = .preferredFont(forTextStyle: .body)
 
 ### 基础用法
 
-```swift
-let textField = UITextField()
-textField.placeholder = "请输入..."
-textField.text = "默认值"
-textField.borderStyle = .roundedRect
-textField.keyboardType = .emailAddress
-textField.returnKeyType = .done
+```objc
+UITextField *textField = [[UITextField alloc] init];
+textField.placeholder = @"请输入...";
+textField.text = @"默认值";
+textField.borderStyle = UITextBorderStyleRoundedRect;
+textField.keyboardType = UIKeyboardTypeEmailAddress;
+textField.returnKeyType = UIReturnKeyDone;
 ```
 
 ### 代理方法
 
-```swift
-extension MyVC: UITextFieldDelegate {
-    
-    // 即将开始编辑
-    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
-        return true
-    }
-    
-    // 已经开始编辑
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        print("开始编辑")
-    }
-    
-    // 即将结束编辑
-    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
-        return true
-    }
-    
-    // 已经结束编辑
-    func textFieldDidEndEditing(_ textField: UITextField) {
-        print("结束编辑")
-    }
-    
-    // 字符变化
-    func textField(_ textField: UITextField, 
-                   shouldChangeCharactersIn range: NSRange, 
-                   replacementString string: String) -> Bool {
-        // 可以在这里做输入验证
-        return true
-    }
-    
-    // 点击清除按钮
-    func textFieldShouldClear(_ textField: UITextField) -> Bool {
-        return true
-    }
-    
-    // 点击返回键
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
-    }
+```objc
+@interface MyVC () <UITextFieldDelegate>
+@end
+
+@implementation MyVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    textField.delegate = self;
 }
+
+#pragma mark - UITextFieldDelegate
+
+// 即将开始编辑
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField {
+    return YES;
+}
+
+// 已经开始编辑
+- (void)textFieldDidBeginEditing:(UITextField *)textField {
+    NSLog(@"开始编辑");
+}
+
+// 即将结束编辑
+- (BOOL)textFieldShouldEndEditing:(UITextField *)textField {
+    return YES;
+}
+
+// 已经结束编辑
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+    NSLog(@"结束编辑");
+}
+
+// 字符变化
+- (BOOL)textField:(UITextField *)textField 
+shouldChangeCharactersInRange:(NSRange)range 
+replacementString:(NSString *)string {
+    // 可以在这里做输入验证
+    return YES;
+}
+
+// 点击清除按钮
+- (BOOL)textFieldShouldClear:(UITextField *)textField {
+    return YES;
+}
+
+// 点击返回键
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    [textField resignFirstResponder];
+    return YES;
+}
+
+@end
 ```
 
 ### 样式设置
 
-```swift
+```objc
 // 边框样式
-textField.borderStyle = .none          // 无边框
-textField.borderStyle = .line          // 底线
-textField.borderStyle = .bezel         // 凹陷
-textField.borderStyle = .roundedRect   // 圆角矩形
+textField.borderStyle = UITextBorderStyleNone;       // 无边框
+textField.borderStyle = UITextBorderStyleLine;        // 底线
+textField.borderStyle = UITextBorderStyleBezel;       // 凹陷
+textField.borderStyle = UITextBorderStyleRoundedRect; // 圆角矩形
 
 // 左视图（通常放图标）
-let iconView = UIImageView(image: UIImage(systemName: "search"))
-iconView.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
-textField.leftView = iconView
-textField.leftViewMode = .always
+UIImageView *iconView = [[UIImageView alloc] initWithImage:[UIImage systemImageNamed:@"search"]];
+iconView.frame = CGRectMake(0, 0, 30, 30);
+textField.leftView = iconView;
+textField.leftViewMode = UITextFieldViewModeAlways;
 
 // 右视图（通常放清除按钮）
-let clearButton = UIButton(type: .custom)
-clearButton.setImage(UIImage(systemName: "xmark.circle"), for: .normal)
-textField.rightView = clearButton
-textField.rightViewMode = .whileEditing
+UIButton *clearButton = [UIButton buttonWithType:UIButtonTypeCustom];
+[clearButton setImage:[UIImage systemImageNamed:@"xmark.circle"] forState:UIControlStateNormal];
+textField.rightView = clearButton;
+textField.rightViewMode = UITextFieldViewModeWhileEditing;
 
 // 占位符颜色
-textField.attributedPlaceholder = NSAttributedString(
-    string: "placeholder",
-    attributes: [.foregroundColor: UIColor.gray]
-)
+textField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:@"placeholder"
+                                                                   attributes:@{NSForegroundColorAttributeName: [UIColor grayColor]}];
 ```
 
 ### 键盘类型
 
-```swift
-textField.keyboardType = .default           // 默认
-textField.keyboardType = .asciiCapable      // ASCII
-textField.keyboardType = .numbersAndPunctuation // 数字和标点
-textField.keyboardType = .numberPad         // 数字键盘
-textField.keyboardType = .decimalPad        // 小数键盘
-textField.keyboardType = .phonePad          // 电话键盘
-textField.keyboardType = .namePhonePad      // 姓名电话
-textField.keyboardType = .emailAddress      // 邮箱
-textField.keyboardType = .URL               // URL
-textField.keyboardType = .twitter           // Twitter
-textField.keyboardType = .webSearch         // Web 搜索
+```objc
+textField.keyboardType = UIKeyboardTypeDefault;           // 默认
+textField.keyboardType = UIKeyboardTypeASCIICapable;       // ASCII
+textField.keyboardType = UIKeyboardTypeNumbersAndPunctuation; // 数字和标点
+textField.keyboardType = UIKeyboardTypeNumberPad;          // 数字键盘
+textField.keyboardType = UIKeyboardTypeDecimalPad;        // 小数键盘
+textField.keyboardType = UIKeyboardTypePhonePad;          // 电话键盘
+textField.keyboardType = UIKeyboardTypeNamePhonePad;      // 姓名电话
+textField.keyboardType = UIKeyboardTypeEmailAddress;      // 邮箱
+textField.keyboardType = UIKeyboardTypeURL;               // URL
+textField.keyboardType = UIKeyboardTypeTwitter;           // Twitter
+textField.keyboardType = UIKeyboardTypeWebSearch;         // Web 搜索
 ```
 
 ---
@@ -257,54 +313,65 @@ textField.keyboardType = .webSearch         // Web 搜索
 
 ### 基础用法
 
-```swift
-let textView = UITextView()
-textView.text = "可编辑的富文本"
-textView.font = UIFont.systemFont(ofSize: 16)
-textView.textColor = .label
-textView.isEditable = true
-textView.isScrollable = true
+```objc
+UITextView *textView = [[UITextView alloc] init];
+textView.text = @"可编辑的富文本";
+textView.font = [UIFont systemFontOfSize:16];
+textView.textColor = [UIColor labelColor];
+textView.editable = YES;
+textView.scrollEnabled = YES;
 ```
 
 ### 代理方法
 
-```swift
-extension MyVC: UITextViewDelegate {
-    
-    func textViewDidChange(_ textView: UITextView) {
-        print("文本变化：\(textView.text)")
-    }
-    
-    func textViewDidChangeSelection(_ textView: UITextView) {
-        print("选区变化")
-    }
-    
-    func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
-        return true
-    }
-    
-    func textViewDidEndEditing(_ textView: UITextView) {
-        print("结束编辑")
-    }
+```objc
+@interface MyVC () <UITextViewDelegate>
+@end
+
+@implementation MyVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    textView.delegate = self;
 }
+
+#pragma mark - UITextViewDelegate
+
+- (void)textViewDidChange:(UITextView *)textView {
+    NSLog(@"文本变化：%@", textView.text);
+}
+
+- (void)textViewDidChangeSelection:(UITextView *)textView {
+    NSLog(@"选区变化");
+}
+
+- (BOOL)textViewShouldBeginEditing:(UITextView *)textView {
+    return YES;
+}
+
+- (void)textViewDidEndEditing:(UITextView *)textView {
+    NSLog(@"结束编辑");
+}
+
+@end
 ```
 
 ### 富文本编辑
 
-```swift
+```objc
 // 设置富文本
-let attributedText = NSMutableAttributedString(string: "Hello World")
-attributedText.addAttribute(.font,
-                           value: UIFont.boldSystemFont(ofSize: 20),
-                           range: NSRange(location: 0, length: 5))
-textView.attributedText = attributedText
+NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:@"Hello World"];
+[attributedText addAttribute:NSFontAttributeName 
+                       value:[UIFont boldSystemFontOfSize:20] 
+                       range:NSMakeRange(0, 5)];
+textView.attributedText = attributedText;
 
 // 获取选区
-let selectedRange = textView.selectedRange
-let selectedText = (textView.text as NSString).substring(with: selectedRange)
+NSRange selectedRange = textView.selectedRange;
+NSString *selectedText = [textView.text substringWithRange:selectedRange];
 
 // 设置选区
-textView.selectedRange = NSRange(location: 0, length: 5)
+textView.selectedRange = NSMakeRange(0, 5);
 ```
 
 ---
@@ -313,76 +380,86 @@ textView.selectedRange = NSRange(location: 0, length: 5)
 
 ### 基础用法
 
-```swift
-let imageView = UIImageView()
-imageView.image = UIImage(named: "example")
-imageView.contentMode = .scaleAspectFit
-imageView.clipsToBounds = true
+```objc
+UIImageView *imageView = [[UIImageView alloc] init];
+imageView.image = [UIImage imageNamed:@"example"];
+imageView.contentMode = UIViewContentModeScaleAspectFit;
+imageView.clipsToBounds = YES;
 ```
 
 ### 内容模式
 
-```swift
-imageView.contentMode = .scaleToFill      // 填充（可能变形）
-imageView.contentMode = .scaleAspectFit   // 适应（保持比例，可能有留白）
-imageView.contentMode = .scaleAspectFill  // 填充（保持比例，可能裁剪）
-imageView.contentMode = .center           // 居中
-imageView.contentMode = .top              // 顶部
-imageView.contentMode = .bottom           // 底部
-imageView.contentMode = .left             // 左侧
-imageView.contentMode = .right            // 右侧
+```objc
+imageView.contentMode = UIViewContentModeScaleToFill;      // 填充（可能变形）
+imageView.contentMode = UIViewContentModeScaleAspectFit;   // 适应（保持比例，可能有留白）
+imageView.contentMode = UIViewContentModeScaleAspectFill;   // 填充（保持比例，可能裁剪）
+imageView.contentMode = UIViewContentModeCenter;             // 居中
+imageView.contentMode = UIViewContentModeTop;                // 顶部
+imageView.contentMode = UIViewContentModeBottom;             // 底部
+imageView.contentMode = UIViewContentModeLeft;               // 左侧
+imageView.contentMode = UIViewContentModeRight;             // 右侧
 ```
 
 ### 圆角与边框
 
-```swift
+```objc
 // 圆角
-imageView.layer.cornerRadius = 8
-imageView.clipsToBounds = true
+imageView.layer.cornerRadius = 8;
+imageView.clipsToBounds = YES;
 
 // 圆形
-imageView.layer.cornerRadius = imageView.bounds.width / 2
-imageView.clipsToBounds = true
+imageView.layer.cornerRadius = imageView.bounds.size.width / 2;
+imageView.clipsToBounds = YES;
 
 // 边框
-imageView.layer.borderWidth = 2
-imageView.layer.borderColor = UIColor.systemBlue.cgColor
+imageView.layer.borderWidth = 2;
+imageView.layer.borderColor = [UIColor systemBlueColor].CGColor;
 ```
 
 ### 动画
 
-```swift
+```objc
 // 淡入动画
-UIView.animate(withDuration: 0.3) {
-    imageView.alpha = 1.0
-}
+[UIView animateWithDuration:0.3 animations:^{
+    imageView.alpha = 1.0;
+}];
 
 // 图片切换动画
-UIView.transition(with: imageView,
-                  duration: 0.3,
-                  options: .transitionCrossDissolve,
-                  animations: {
-    imageView.image = UIImage(named: "newImage")
-})
+[UIView transitionWithView:imageView
+                  duration:0.3
+                   options:UIViewAnimationOptionTransitionCrossDissolve
+                animations:^{
+    imageView.image = [UIImage imageNamed:@"newImage"];
+} completion:nil];
 ```
 
 ### 加载网络图片
 
-```swift
-extension UIImageView {
-    func load(url: URL) {
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let data = data, 
-                  let image = UIImage(data: data) else { return }
-            DispatchQueue.main.async {
-                self.image = image
-            }
-        }.resume()
-    }
+```objc
+// UIImageView+LoadImage.h
+@interface UIImageView (LoadImage)
+- (void)loadImageWithURL:(NSURL *)url;
+@end
+
+// UIImageView+LoadImage.m
+@implementation UIImageView (LoadImage)
+
+- (void)loadImageWithURL:(NSURL *)url {
+    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithURL:url completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        if (data) {
+            UIImage *image = [UIImage imageWithData:data];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.image = image;
+            });
+        }
+    }];
+    [task resume];
 }
 
+@end
+
 // 使用
-imageView.load(url: URL(string: "https://example.com/image.jpg")!)
+[imageView loadImageWithURL:[NSURL URLWithString:@"https://example.com/image.jpg"]];
 ```
 
 ---
@@ -391,112 +468,114 @@ imageView.load(url: URL(string: "https://example.com/image.jpg")!)
 
 ### 基础用法
 
-```swift
-let scrollView = UIScrollView()
-scrollView.frame = view.bounds
-scrollView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-view.addSubview(scrollView)
+```objc
+UIScrollView *scrollView = [[UIScrollView alloc] init];
+scrollView.frame = self.view.bounds;
+scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+[self.view addSubview:scrollView];
 
 // 添加内容视图
-let contentView = UIView()
-scrollView.addSubview(contentView)
+UIView *contentView = [[UIView alloc] init];
+[scrollView addSubview:contentView];
 
 // 设置约束
-contentView.translatesAutoresizingMaskIntoConstraints = false
-NSLayoutConstraint.activate([
-    contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-    contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-    contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-    contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-    contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+contentView.translatesAutoresizingMaskIntoConstraints = NO;
+[NSLayoutConstraint activateConstraints:@[
+    [contentView.topAnchor constraintEqualToAnchor:scrollView.topAnchor],
+    [contentView.leadingAnchor constraintEqualToAnchor:scrollView.leadingAnchor],
+    [contentView.trailingAnchor constraintEqualToAnchor:scrollView.trailingAnchor],
+    [contentView.bottomAnchor constraintEqualToAnchor:scrollView.bottomAnchor],
+    [contentView.widthAnchor constraintEqualToAnchor:scrollView.widthAnchor]
     // 高度由内容决定
-])
+]];
 ```
 
 ### 常用属性
 
-```swift
+```objc
 // 内容大小
-scrollView.contentSize = CGSize(width: 320, height: 1000)
+scrollView.contentSize = CGSizeMake(320, 1000);
 
 // 内容 insets
-scrollView.contentInset = UIEdgeInsets(top: 20, left: 0, bottom: 0, right: 0)
+scrollView.contentInset = UIEdgeInsetsMake(20, 0, 0, 0);
 
 // 滚动偏移
-scrollView.contentOffset = CGPoint(x: 0, y: 100)
+scrollView.contentOffset = CGPointMake(0, 100);
 
 // 分页
-scrollView.isPagingEnabled = true
+scrollView.pagingEnabled = YES;
 
 // 显示指示器
-scrollView.showsVerticalScrollIndicator = true
-scrollView.showsHorizontalScrollIndicator = true
+scrollView.showsVerticalScrollIndicator = YES;
+scrollView.showsHorizontalScrollIndicator = YES;
 
 // 弹性
-scrollView.alwaysBounceVertical = true
-scrollView.alwaysBounceHorizontal = false
+scrollView.alwaysBounceVertical = YES;
+scrollView.alwaysBounceHorizontal = NO;
 
 // 缩放
-scrollView.minimumZoomScale = 1.0
-scrollView.maximumZoomScale = 3.0
-scrollView.zoomScale = 1.0
+scrollView.minimumZoomScale = 1.0;
+scrollView.maximumZoomScale = 3.0;
+scrollView.zoomScale = 1.0;
 ```
 
 ### 代理方法
 
-```swift
-extension MyVC: UIScrollViewDelegate {
-    
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        print("滚动中：\(scrollView.contentOffset.y)")
-    }
-    
-    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        print("开始拖动")
-    }
-    
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, 
-                                  willDecelerate decelerate: Bool) {
-        print("结束拖动，是否减速：\(decelerate)")
-    }
-    
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        print("减速结束")
-    }
-    
-    // 缩放
-    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        return contentView
-    }
-    
-    func scrollViewDidEndZooming(_ scrollView: UIScrollView,
-                                 with view: UIView?,
-                                 atScale scale: CGFloat) {
-        print("缩放结束：\(scale)")
-    }
+```objc
+@interface MyVC () <UIScrollViewDelegate>
+@end
+
+@implementation MyVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    scrollView.delegate = self;
 }
+
+#pragma mark - UIScrollViewDelegate
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    NSLog(@"滚动中：%f", scrollView.contentOffset.y);
+}
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    NSLog(@"开始拖动");
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    NSLog(@"结束拖动，是否减速：%d", decelerate);
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    NSLog(@"减速结束");
+}
+
+// 缩放
+- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
+    return contentView;
+}
+
+- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale {
+    NSLog(@"缩放结束：%f", scale);
+}
+
+@end
 ```
 
 ### 滚动到指定位置
 
-```swift
+```objc
 // 滚动到顶部
-scrollView.setContentOffset(.zero, animated: true)
+[scrollView setContentOffset:CGPointZero animated:YES];
 
 // 滚动到底部
-let bottomOffset = CGPoint(
-    x: 0, 
-    y: scrollView.contentSize.height - scrollView.bounds.height
-)
-scrollView.setContentOffset(bottomOffset, animated: true)
+CGPoint bottomOffset = CGPointMake(0, scrollView.contentSize.height - scrollView.bounds.size.height);
+[scrollView setContentOffset:bottomOffset animated:YES];
 
 // 滚动到指定视图
-let targetView = subviews[5]
-let targetOffset = CGPoint(
-    x: 0, 
-    y: targetView.frame.origin.y
-)
-scrollView.setContentOffset(targetOffset, animated: true)
+UIView *targetView = subviews[5];
+CGPoint targetOffset = CGPointMake(0, targetView.frame.origin.y);
+[scrollView setContentOffset:targetOffset animated:YES];
 ```
 
 ---

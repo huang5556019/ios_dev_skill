@@ -196,52 +196,37 @@ for (UIView *view in views) {
 
 ---
 
-## 📊 Swift 项目对比
+## Objective-C 项目对比
 
-### Masonry (Swift)
+### Masonry
 
-```swift
-let view = UIView()
-view.backgroundColor = .red
-self.view.addSubview(view)
+```objc
+UIView *view = [[UIView alloc] init];
+view.backgroundColor = [UIColor redColor];
+[self.view addSubview:view];
 
-view.mas_makeConstraints { make in
-    make?.top.equalTo(self.view).offset(20)
-    make?.left.equalTo(self.view).offset(20)
-    make?.right.equalTo(self.view).offset(-20)
-    make?.height.equalTo(100)
-}
+[view mas_makeConstraints:^(MASConstraintMaker *make) {
+    make.top.equalTo(self.view).offset(20);
+    make.left.equalTo(self.view).offset(20);
+    make.right.equalTo(self.view).offset(-20);
+    make.height.equalTo(@100);
+}];
 ```
 
-### 原生 (Swift)
+### 原生 Auto Layout
 
-```swift
-let view = UIView()
-view.backgroundColor = .red
-view.translatesAutoresizingMaskIntoConstraints = false
-self.view.addSubview(view)
+```objc
+UIView *view = [[UIView alloc] init];
+view.backgroundColor = [UIColor redColor];
+view.translatesAutoresizingMaskIntoConstraints = NO;
+[self.view addSubview:view];
 
-NSLayoutConstraint.activate([
-    view.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 20),
-    view.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 20),
-    view.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -20),
-    view.heightAnchor.constraint(equalToConstant: 100)
-])
-```
-
-### SnapKit (Swift 版 Masonry)
-
-```swift
-let view = UIView()
-view.backgroundColor = .red
-self.view.addSubview(view)
-
-view.snp.makeConstraints { make in
-    make.top.equalTo(self.view).offset(20)
-    make.left.equalTo(self.view).offset(20)
-    make.right.equalTo(self.view).offset(-20)
-    make.height.equalTo(100)
-}
+[NSLayoutConstraint activateConstraints:@[
+    [view.topAnchor constraintEqualToAnchor:self.view.topAnchor constant:20],
+    [view.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:20],
+    [view.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-20],
+    [view.heightAnchor constraintEqualToConstant:100]
+]];
 ```
 
 ---
